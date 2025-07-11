@@ -1,12 +1,15 @@
-import "./App.css";
+import { PublishEvent } from "./components/PublishEvent";
 
 function App() {
+  const handleEventSubmit = (data: any) => {
+    console.log("Event submitted:", data);
+    // Here you would typically send the data to your backend
+    alert("Event published successfully!");
+  };
+
   return (
     <div className="App">
-      <header className="text-center p-4 bg-blue-500 text-white">
-        <h1>Welcome to the Event Management App</h1>
-        <p>This is a simple React TypeScript application.</p>
-      </header>
+      <PublishEvent onSubmit={handleEventSubmit} isLoading={false} />
     </div>
   );
 }
