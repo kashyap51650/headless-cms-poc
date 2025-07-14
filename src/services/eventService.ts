@@ -127,21 +127,46 @@ export class EventService {
       }
 
       const response = await client.getEntries<EventSkeleton>(queryParams);
+      console.log(response);
+      const events: Event[] = response.items.map((item) => {
+        // Debug: Log the raw categories data
+        console.log("Raw item from Contentful:", item);
+        console.log("Raw categories from Contentful:", item.fields.categories);
 
-      const events: Event[] = response.items.map((item) => ({
-        id: item.sys.id,
-        title: item.fields.title,
-        slug: item.fields.slug,
-        date: item.fields.date,
-        description: item.fields.description,
-        banner: (item.fields.banner as any)?.fields?.file?.url,
-        isPublished: item.fields.isPublished,
-        organizer: item.fields.organizer,
-        categories: item.fields.categories || [],
-        speakers: item.fields.speakers || [],
-        createdAt: item.sys.createdAt,
-        updatedAt: item.sys.updatedAt,
-      }));
+        return {
+          id: item.sys.id,
+          title: item.fields.title || "Untitled Event",
+          slug: item.fields.slug || "untitled",
+          date: item.fields.date || new Date().toISOString(),
+          description: item.fields.description || "",
+          banner: (item.fields.banner as any)?.fields?.file?.url,
+          isPublished: Boolean(item.fields.isPublished),
+          organizer: item.fields.organizer || "Unknown Organizer",
+          categories: Array.isArray(item.fields.categories)
+            ? (item.fields.categories as any[])
+                .map((cat: any) => {
+                  // Handle multiple possible formats:
+                  // 1. String ID
+                  if (typeof cat === "string") return cat;
+                  // 2. Contentful linked entry with sys.id
+                  if (cat?.sys?.id) return cat.sys.id;
+                  // 3. Object with fields.title
+                  if (cat?.fields?.title) return cat.fields.title;
+                  // 4. Object with title property
+                  if (cat?.title) return cat.title;
+                  // 5. Fallback to string conversion
+                  console.warn("Unexpected category format:", cat);
+                  return String(cat);
+                })
+                .filter(Boolean) // Remove any falsy values
+            : [],
+          speakers: Array.isArray(item.fields.speakers)
+            ? item.fields.speakers
+            : [],
+          createdAt: item.sys.createdAt,
+          updatedAt: item.sys.updatedAt,
+        };
+      });
 
       return {
         items: events,

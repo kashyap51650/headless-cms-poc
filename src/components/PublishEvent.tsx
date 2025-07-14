@@ -1,6 +1,8 @@
 import React from "react";
 import { useEventForm } from "../hooks/useEventForm";
 import type { EventFormData } from "../schemas/eventSchema";
+import type { Event } from "../types/event";
+import { Button } from "./ui/Button";
 import {
   EventHeader,
   BasicInfoSection,
@@ -13,16 +15,33 @@ import {
 } from "./index";
 
 interface PublishEventProps {
-  onSubmit?: (data: EventFormData) => void;
   initialData?: Partial<EventFormData>;
+  editingEvent?: Event | null;
   isLoading?: boolean;
+  onBack?: () => void;
 }
 
 export const PublishEvent: React.FC<PublishEventProps> = ({
-  onSubmit,
   initialData,
+  editingEvent,
   isLoading = false,
+  onBack,
 }) => {
+  // Convert editingEvent to initial form data if editing
+  const formInitialData = editingEvent
+    ? {
+        title: editingEvent.title,
+        slug: editingEvent.slug,
+        date: editingEvent.date,
+        description: editingEvent.description,
+        organizer: editingEvent.organizer,
+        categories: editingEvent.categories,
+        speakers: editingEvent.speakers,
+        isPublished: editingEvent.isPublished,
+        ...initialData,
+      }
+    : initialData;
+
   const {
     form,
     selectedCategories,
@@ -33,7 +52,7 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
     handleCategoryToggle,
     handleSpeakerToggle,
     onFormSubmit,
-  } = useEventForm({ initialData, onSubmit });
+  } = useEventForm({ initialData: formInitialData });
 
   const {
     register,
@@ -46,8 +65,41 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="max-w-4xl mx-auto">
-        <EventHeader isPublished={isPublished} title={title} />
+      <div className="max-w-3xl mx-auto">
+        {/* Back Button */}
+        {onBack && (
+          <div className="mb-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onBack}
+              className="inline-flex items-center"
+            >
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Back to Dashboard
+            </Button>
+          </div>
+        )}
+
+        <EventHeader
+          isPublished={isPublished}
+          title={
+            title ||
+            (editingEvent ? `Edit ${editingEvent.title}` : "Create New Event")
+          }
+        />
 
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
           <BasicInfoSection register={register} errors={errors} />

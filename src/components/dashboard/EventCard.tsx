@@ -1,0 +1,144 @@
+import React from "react";
+import { Calendar, Eye, Edit, Trash2, Users } from "lucide-react";
+import type { Event } from "../../types/event";
+import { Button } from "../ui/Button";
+
+interface EventCardProps {
+  event: Event;
+  onView?: (event: Event) => void;
+  onEdit?: (event: Event) => void;
+  onDelete?: (event: Event) => void;
+}
+
+export const EventCard: React.FC<EventCardProps> = ({
+  event,
+  onView,
+  onEdit,
+  onDelete,
+}) => {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  console.log(event);
+
+  return (
+    <div className="bg-white rounded-2xl shadow-xl group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className="relative">
+        {event.banner && (
+          <div className="h-48 bg-gradient-to-br from-primary-500 to-primary-700 rounded-t-xl relative overflow-hidden">
+            <img
+              src={
+                typeof event.banner === "string"
+                  ? event.banner
+                  : URL.createObjectURL(event.banner)
+              }
+              alt={event.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-20" />
+          </div>
+        )}
+
+        <div className={`p-6 ${!event.banner ? "pt-8" : ""}`}>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-primary-600 transition-colors">
+                {event.title}
+              </h3>
+              <div className="flex items-center text-slate-600 text-sm mb-2">
+                <Calendar className="w-4 h-4 mr-2" />
+                {formatDate(event.date)}
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  event.isPublished
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {event.isPublished ? "Published" : "Draft"}
+              </span>
+            </div>
+          </div>
+
+          <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+            {event.description}
+          </p>
+
+          {/* <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center text-slate-500 text-sm">
+              <Users className="w-4 h-4 mr-2" />
+              {event.organizer.fields.name}
+            </div>
+            {event.categories && event.categories.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {event.categories.slice(0, 2).map((category) => {
+                  // Debug: Log category to see its structure
+                  console.log('Category data:', category);
+                  
+                  // Safely render category - handle both string and object cases
+                  const categoryText = typeof category === 'string' 
+                    ? category 
+                    : (category as any)?.fields?.title || (category as any)?.title || 'Unknown';
+                    
+                  return (
+                    <span
+                      key={typeof category === 'string' ? category : (category as any)?.id || Math.random()}
+                      className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
+                    >
+                      {categoryText}
+                    </span>
+                  );
+                })}
+                {event.categories.length > 2 && (
+                  <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-full">
+                    +{event.categories.length - 2}
+                  </span>
+                )}
+              </div>
+            )}
+          </div> */}
+
+          <div className="flex space-x-2">
+            <Button
+              onClick={() => onView?.(event)}
+              variant="outline"
+              size="sm"
+              icon={<Eye className="w-4 h-4" />}
+              className="flex-1"
+            >
+              View
+            </Button>
+            <Button
+              onClick={() => onEdit?.(event)}
+              variant="outline"
+              size="sm"
+              icon={<Edit className="w-4 h-4" />}
+              className="flex-1"
+            >
+              Edit
+            </Button>
+            <Button
+              onClick={() => onDelete?.(event)}
+              variant="outline"
+              size="sm"
+              icon={<Trash2 className="w-4 h-4" />}
+              className="text-red-600 border-red-200 hover:bg-red-50"
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

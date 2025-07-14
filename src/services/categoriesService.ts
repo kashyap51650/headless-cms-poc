@@ -25,11 +25,16 @@ export class CategoriesService {
       });
 
       // Sort by name after fetching
-      const categories: Category[] = response.items.map((item) => ({
-        id: item.sys.id,
-        title: item.fields.title,
-        slug: item.fields.slug,
-      }));
+      const categories: Category[] = response.items.map((item) => {
+        // Debug: Log raw category data
+        console.log("Raw category from Contentful:", item);
+
+        return {
+          id: item.sys.id,
+          title: item.fields.title,
+          slug: item.fields.slug,
+        };
+      });
 
       return categories.sort((a, b) => a.title.localeCompare(b.title));
     } catch (error) {

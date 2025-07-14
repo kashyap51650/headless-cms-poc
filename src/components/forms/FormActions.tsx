@@ -29,7 +29,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
         type="submit"
         variant="primary"
         loading={isLoading}
-        disabled={!isValid}
+        // disabled={!isValid}
         icon={<Save className="w-5 h-5" />}
       >
         {isLoading ? "Publishing..." : "Publish Event"}

@@ -22,7 +22,7 @@ export interface Organizer {
 
 export interface Category {
   id: string;
-  name: string;
+  title: string;
   slug: string;
   color?: string;
 }

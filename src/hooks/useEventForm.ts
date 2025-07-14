@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { EventService } from "../services/eventService";
 import { eventSchema, type EventFormData } from "../schemas/eventSchema";
 
 interface UseEventFormProps {
-  initialData?: Partial<EventFormData>;
+  initialData?: Partial<EventFormData & { id?: string }>;
   onSubmit?: (data: EventFormData) => void;
 }
 
@@ -79,9 +80,41 @@ export const useEventForm = ({
     form.setValue("speakers", updatedSpeakers);
   };
 
-  const onFormSubmit = (data: EventFormData) => {
-    console.log("Form submitted:", data);
-    onSubmit?.(data);
+  const onFormSubmit = async (data: EventFormData) => {
+    try {
+      console.log("Form submitted:", data);
+
+      // If this is a new event (no initial ID), create it
+      if (!initialData?.id) {
+        const eventData = {
+          title: data.title,
+          slug: data.slug,
+          date: data.date,
+          description: data.description,
+          banner: data.banner,
+          isPublished: data.isPublished,
+          organizer: data.organizer,
+          categories: data.categories,
+          speakers: data.speakers,
+        };
+
+        const createdEvent = await EventService.createEvent(eventData);
+        console.log("Event created:", createdEvent);
+      } else {
+        // If editing, update the event
+        const updatedEvent = await EventService.updateEvent(
+          initialData.id,
+          data
+        );
+        console.log("Event updated:", updatedEvent);
+      }
+
+      // Call the provided onSubmit callback
+      onSubmit?.(data);
+    } catch (error) {
+      console.error("Error saving event:", error);
+      // You might want to show an error toast or notification here
+    }
   };
 
   return {
