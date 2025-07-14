@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EventService } from "../services/eventService";
+import { useCreateEvent, useUpdateEvent } from "./useEvents";
 import { eventSchema, type EventFormData } from "../schemas/eventSchema";
 
 interface UseEventFormProps {
   initialData?: Partial<EventFormData & { id?: string }>;
-  onSubmit?: (data: EventFormData) => void;
+  onSuccess?: (data: any) => void;
+  onError?: (error: Error) => void;
 }
 
 export const useEventForm = ({
   initialData,
-  onSubmit,
+  onSuccess,
+  onError,
 }: UseEventFormProps = {}) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     initialData?.categories || []
@@ -20,6 +22,13 @@ export const useEventForm = ({
     initialData?.speakers || []
   );
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+
+  const createEventMutation = useCreateEvent();
+  const updateEventMutation = useUpdateEvent();
+
+  const isCreating = createEventMutation.isPending;
+  const isUpdating = updateEventMutation.isPending;
+  const isLoading = isCreating || isUpdating;
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -98,22 +107,35 @@ export const useEventForm = ({
           speakers: data.speakers,
         };
 
-        const createdEvent = await EventService.createEvent(eventData);
-        console.log("Event created:", createdEvent);
+        createEventMutation.mutate(eventData, {
+          onSuccess: (createdEvent) => {
+            console.log("Event created:", createdEvent);
+            onSuccess?.(createdEvent);
+          },
+          onError: (error) => {
+            console.error("Error creating event:", error);
+            onError?.(error);
+          },
+        });
       } else {
         // If editing, update the event
-        const updatedEvent = await EventService.updateEvent(
-          initialData.id,
-          data
+        updateEventMutation.mutate(
+          { id: initialData.id, data },
+          {
+            onSuccess: (updatedEvent) => {
+              console.log("Event updated:", updatedEvent);
+              onSuccess?.(updatedEvent);
+            },
+            onError: (error) => {
+              console.error("Error updating event:", error);
+              onError?.(error);
+            },
+          }
         );
-        console.log("Event updated:", updatedEvent);
       }
-
-      // Call the provided onSubmit callback
-      onSubmit?.(data);
     } catch (error) {
       console.error("Error saving event:", error);
-      // You might want to show an error toast or notification here
+      onError?.(error as Error);
     }
   };
 
@@ -122,10 +144,11 @@ export const useEventForm = ({
     selectedCategories,
     selectedSpeakers,
     bannerPreview,
+    isLoading,
     setBannerPreview,
     handleBannerChange,
     handleCategoryToggle,
     handleSpeakerToggle,
-    onFormSubmit,
+    onSubmit: onFormSubmit,
   };
 };

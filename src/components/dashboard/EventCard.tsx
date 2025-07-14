@@ -17,13 +17,35 @@ export const EventCard: React.FC<EventCardProps> = ({
   onDelete,
 }) => {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", dateString, error);
+      return "Invalid Date";
+    }
+  };
+
+  // Safely get string value from any input
+  const safeString = (value: any, fallback: string = "Unknown"): string => {
+    if (typeof value === "string") return value;
+    if (typeof value === "number") return String(value);
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === "object") {
+      // Try common object properties
+      if (value.title) return String(value.title);
+      if (value.name) return String(value.name);
+      if (value.fields?.title) return String(value.fields.title);
+      if (value.fields?.name) return String(value.fields.name);
+      // Last resort: JSON stringify (should be avoided for React children)
+      return fallback;
+    }
+    return String(value);
   };
 
   console.log(event);

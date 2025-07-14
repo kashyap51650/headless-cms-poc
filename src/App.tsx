@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PublishEvent } from "./components/PublishEvent";
 import { EventsDashboard } from "./components/EventsDashboard";
+import { queryClient } from "./lib/queryClient";
 import type { Event } from "./types/event";
 
 type AppView = "dashboard" | "create-event" | "edit-event";
@@ -30,22 +33,25 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {currentView === "dashboard" && (
-        <EventsDashboard
-          onCreateEvent={handleCreateEvent}
-          onEditEvent={handleEditEvent}
-          onViewEvent={handleViewEvent}
-        />
-      )}
-      {(currentView === "create-event" || currentView === "edit-event") && (
-        <PublishEvent
-          isLoading={false}
-          editingEvent={editingEvent}
-          onBack={handleBackToDashboard}
-        />
-      )}
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="App">
+        {currentView === "dashboard" && (
+          <EventsDashboard
+            onCreateEvent={handleCreateEvent}
+            onEditEvent={handleEditEvent}
+            onViewEvent={handleViewEvent}
+          />
+        )}
+        {(currentView === "create-event" || currentView === "edit-event") && (
+          <PublishEvent
+            isLoading={false}
+            editingEvent={editingEvent}
+            onBack={handleBackToDashboard}
+          />
+        )}
+      </div>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 

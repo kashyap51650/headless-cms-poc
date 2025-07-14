@@ -1,200 +1,156 @@
-import { useState, useEffect, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { EventService } from "../services/eventService";
+import { queryKeys } from "../lib/queryKeys";
 import type { Event } from "../types/event";
 
-export const useEvents = (
-  options: {
-    published?: boolean;
-    limit?: number;
-    skip?: number;
-    orderBy?: string;
-  } = {}
-) => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface UseEventsOptions {
+  published?: boolean;
+  limit?: number;
+  skip?: number;
+  orderBy?: string;
+}
 
-  const fetchEvents = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await EventService.getEvents(options);
-      setEvents(response.items);
-      setTotal(response.total);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch events");
-    } finally {
-      setLoading(false);
-    }
-  }, [options.published, options.limit, options.skip, options.orderBy]);
-
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+export const useEvents = (options: UseEventsOptions = {}) => {
+  const {
+    data,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.eventsWithOptions(options),
+    queryFn: () => EventService.getEvents(options),
+    select: (data) => ({
+      events: data.items,
+      total: data.total,
+    }),
+  });
 
   return {
-    events,
-    total,
+    events: data?.events ?? [],
+    total: data?.total ?? 0,
     loading,
-    error,
-    refetch: fetchEvents,
+    error: error?.message ?? null,
+    refetch,
   };
 };
 
 export const useEvent = (id: string) => {
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchEvent = useCallback(async () => {
-    if (!id) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-      const fetchedEvent = await EventService.getEventById(id);
-      setEvent(fetchedEvent);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch event");
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    fetchEvent();
-  }, [fetchEvent]);
+  const {
+    data: event,
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.event(id),
+    queryFn: () => EventService.getEventById(id),
+    enabled: !!id,
+  });
 
   return {
-    event,
+    event: event ?? null,
     loading,
-    error,
-    refetch: fetchEvent,
+    error: error?.message ?? null,
   };
 };
 
 export const useEventBySlug = (slug: string) => {
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchEvent = useCallback(async () => {
-    if (!slug) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-      const fetchedEvent = await EventService.getEventBySlug(slug);
-      setEvent(fetchedEvent);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch event");
-    } finally {
-      setLoading(false);
-    }
-  }, [slug]);
-
-  useEffect(() => {
-    fetchEvent();
-  }, [fetchEvent]);
+  const {
+    data: event,
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.eventBySlug(slug),
+    queryFn: () => EventService.getEventBySlug(slug),
+    enabled: !!slug,
+  });
 
   return {
-    event,
+    event: event ?? null,
     loading,
-    error,
-    refetch: fetchEvent,
+    error: error?.message ?? null,
   };
 };
 
-export const useEventSearch = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const useEventSearch = (query: string) => {
+  const {
+    data: events,
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.eventSearch(query),
+    queryFn: () => EventService.searchEvents(query),
+    enabled: !!query && query.trim().length > 0,
+  });
 
-  const searchEvents = useCallback(
-    async (
-      query: string,
-      options: {
-        published?: boolean;
-        limit?: number;
-      } = {}
-    ) => {
-      if (!query.trim()) {
-        setEvents([]);
-        return;
-      }
+  return {
+    events: events ?? [],
+    total: events?.length ?? 0,
+    loading,
+    error: error?.message ?? null,
+  };
+};
 
-      try {
-        setLoading(true);
-        setError(null);
-        const results = await EventService.searchEvents(query, options);
-        setEvents(results);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to search events"
-        );
-      } finally {
-        setLoading(false);
-      }
+export const useEventsByCategory = (categoryId: string) => {
+  const {
+    data: events,
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.eventsByCategory(categoryId),
+    queryFn: () => EventService.getEventsByCategory(categoryId),
+    enabled: !!categoryId,
+  });
+
+  return {
+    events: events ?? [],
+    total: events?.length ?? 0,
+    loading,
+    error: error?.message ?? null,
+  };
+};
+
+// Mutations
+export const useCreateEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: EventService.createEvent,
+    onSuccess: () => {
+      // Invalidate and refetch events list
+      queryClient.invalidateQueries({ queryKey: queryKeys.events });
     },
-    []
-  );
-
-  const clearSearch = useCallback(() => {
-    setEvents([]);
-    setError(null);
-  }, []);
-
-  return {
-    events,
-    loading,
-    error,
-    searchEvents,
-    clearSearch,
-  };
+  });
 };
 
-export const useEventsByCategory = (
-  categoryId: string,
-  options: {
-    published?: boolean;
-    limit?: number;
-  } = {}
-) => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const useUpdateEvent = () => {
+  const queryClient = useQueryClient();
 
-  const fetchEvents = useCallback(async () => {
-    if (!categoryId) return;
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      EventService.updateEvent(id, data),
+    onSuccess: (updatedEvent) => {
+      // Update the specific event in cache
+      if (updatedEvent?.id) {
+        queryClient.setQueryData(
+          queryKeys.event(updatedEvent.id),
+          updatedEvent
+        );
+      }
+      // Invalidate events list to refetch
+      queryClient.invalidateQueries({ queryKey: queryKeys.events });
+    },
+  });
+};
 
-    try {
-      setLoading(true);
-      setError(null);
-      const fetchedEvents = await EventService.getEventsByCategory(
-        categoryId,
-        options
-      );
-      setEvents(fetchedEvents);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to fetch events by category"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [categoryId, options.published, options.limit]);
+export const useDeleteEvent = () => {
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
-
-  return {
-    events,
-    loading,
-    error,
-    refetch: fetchEvents,
-  };
+  return useMutation({
+    mutationFn: EventService.deleteEvent,
+    onSuccess: (_, deletedEventId) => {
+      // Remove the event from cache
+      queryClient.removeQueries({ queryKey: queryKeys.event(deletedEventId) });
+      // Invalidate events list to refetch
+      queryClient.invalidateQueries({ queryKey: queryKeys.events });
+    },
+  });
 };
