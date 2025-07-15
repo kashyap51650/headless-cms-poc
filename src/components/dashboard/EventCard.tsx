@@ -1,7 +1,7 @@
 import React from "react";
 import { Calendar, Eye, Edit, Trash2, Users } from "lucide-react";
-import type { Event } from "../../types/event";
 import { Button } from "../ui/Button";
+import type { Event } from "../../types/event";
 
 interface EventCardProps {
   event: Event;
@@ -31,40 +31,17 @@ export const EventCard: React.FC<EventCardProps> = ({
     }
   };
 
-  // Safely get string value from any input
-  const safeString = (value: any, fallback: string = "Unknown"): string => {
-    if (typeof value === "string") return value;
-    if (typeof value === "number") return String(value);
-    if (value === null || value === undefined) return fallback;
-    if (typeof value === "object") {
-      // Try common object properties
-      if (value.title) return String(value.title);
-      if (value.name) return String(value.name);
-      if (value.fields?.title) return String(value.fields.title);
-      if (value.fields?.name) return String(value.fields.name);
-      // Last resort: JSON stringify (should be avoided for React children)
-      return fallback;
-    }
-    return String(value);
-  };
-
-  console.log(event);
-
   return (
     <div className="bg-white rounded-2xl shadow-xl group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative">
         {event.banner && (
           <div className="h-48 bg-gradient-to-br from-primary-500 to-primary-700 rounded-t-xl relative overflow-hidden">
             <img
-              src={
-                typeof event.banner === "string"
-                  ? event.banner
-                  : URL.createObjectURL(event.banner)
-              }
+              src={event.banner}
               alt={event.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-20" />
+            <div className="absolute inset-0 bg-opacity-80" />
           </div>
         )}
 
@@ -96,25 +73,18 @@ export const EventCard: React.FC<EventCardProps> = ({
             {event.description}
           </p>
 
-          {/* <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center text-slate-500 text-sm">
               <Users className="w-4 h-4 mr-2" />
-              {event.organizer.fields.name}
+              {event.organizer.name}
             </div>
             {event.categories && event.categories.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {event.categories.slice(0, 2).map((category) => {
-                  // Debug: Log category to see its structure
-                  console.log('Category data:', category);
-                  
-                  // Safely render category - handle both string and object cases
-                  const categoryText = typeof category === 'string' 
-                    ? category 
-                    : (category as any)?.fields?.title || (category as any)?.title || 'Unknown';
-                    
+                  const categoryText = category.title;
                   return (
                     <span
-                      key={typeof category === 'string' ? category : (category as any)?.id || Math.random()}
+                      key={category.id}
                       className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
                     >
                       {categoryText}
@@ -128,7 +98,7 @@ export const EventCard: React.FC<EventCardProps> = ({
                 )}
               </div>
             )}
-          </div> */}
+          </div>
 
           <div className="flex space-x-2">
             <Button
