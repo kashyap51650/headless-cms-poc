@@ -1,6 +1,7 @@
 import client from "../contentfulClient";
 import type { EntrySkeletonType } from "contentful";
 import type { Category } from "../types/event";
+import { categoryList } from "../data";
 
 export interface CategoryFields {
   title: string;
@@ -26,9 +27,6 @@ export class CategoriesService {
 
       // Sort by name after fetching
       const categories: Category[] = response.items.map((item) => {
-        // Debug: Log raw category data
-        console.log("Raw category from Contentful:", item);
-
         return {
           id: item.sys.id,
           title: item.fields.title,
@@ -88,15 +86,6 @@ export class CategoriesService {
    * Fallback categories for when Contentful is not available
    */
   private static getFallbackCategories(): Category[] {
-    return [
-      { id: "1", title: "Technology", slug: "technology", color: "#3B82F6" },
-      { id: "2", title: "Business", slug: "business", color: "#10B981" },
-      { id: "3", title: "Design", slug: "design", color: "#F59E0B" },
-      { id: "4", title: "Marketing", slug: "marketing", color: "#EF4444" },
-      { id: "5", title: "Startups", slug: "startups", color: "#8B5CF6" },
-      { id: "6", title: "Healthcare", slug: "healthcare", color: "#06B6D4" },
-      { id: "7", title: "Finance", slug: "finance", color: "#84CC16" },
-      { id: "8", title: "Education", slug: "education", color: "#F97316" },
-    ];
+    return categoryList;
   }
 }
