@@ -100,6 +100,30 @@ export const EventCard: React.FC<EventCardProps> = ({
             )}
           </div>
 
+          <div className="flex items-center justify-between mb-4">
+            {event.speakers && event.speakers.length > 0 ? (
+              <div className="flex items-center space-x-2">
+                {event.speakers.slice(0, 2).map((speaker) => (
+                  <span
+                    key={speaker.id}
+                    className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full"
+                  >
+                    {speaker.name}
+                  </span>
+                ))}
+                {event.speakers.length > 2 && (
+                  <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-full">
+                    +{event.speakers.length - 2}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <span className="text-slate-500 text-xs">
+                No speakers assigned
+              </span>
+            )}
+          </div>
+
           <div className="flex space-x-2">
             <Button
               onClick={() => onView?.(event)}
