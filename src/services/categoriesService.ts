@@ -2,6 +2,7 @@ import client from "../contentfulClient";
 import type { EntrySkeletonType } from "contentful";
 import type { Category } from "../types/event";
 import { categoryList } from "../data";
+import globalSettings from "../setting";
 
 export interface CategoryFields {
   title: string;
@@ -20,6 +21,10 @@ export class CategoriesService {
    * Fetch all categories from Contentful
    */
   static async getCategories(): Promise<Category[]> {
+    if (globalSettings.renderStaticData) {
+      return categoryList;
+    }
+
     try {
       const response = await client.getEntries<CategorySkeleton>({
         content_type: "category", // Replace with your actual category content type ID

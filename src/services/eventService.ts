@@ -1,5 +1,6 @@
 import client from "../contentfulClient";
 import { dummyEvents } from "../data";
+import globalSettings from "../setting";
 import type { EventEntry } from "../types/contentful";
 import type { Event } from "../types/event";
 
@@ -48,6 +49,13 @@ export class EventService {
       orderBy?: string;
     } = {}
   ): Promise<{ items: Event[]; total: number }> {
+    if (globalSettings.renderStaticData) {
+      return {
+        items: dummyEvents,
+        total: dummyEvents.length,
+      };
+    }
+
     try {
       const queryParams: any = {
         content_type: "event",
