@@ -5,9 +5,10 @@ import { Card } from "../ui/Card";
 import { FormField } from "../ui/FormField";
 import { useCategories } from "../../hooks/useCategories";
 import type { EventFormData } from "../../schemas/eventSchema";
+import type { Category } from "../../types/event";
 
 interface CategoriesSectionProps {
-  selectedCategories: string[];
+  selectedCategories: Category[];
   onCategoryToggle: (categoryId: string) => void;
   errors: FieldErrors<EventFormData>;
 }
@@ -44,7 +45,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
             <p className="text-red-700 text-sm mb-3">{error}</p>
             <button
               type="button"
-              onClick={refetch}
+              onClick={() => refetch}
               className="flex items-center px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
             >
               <RefreshCw className="w-4 h-4 mr-1" />
@@ -61,8 +62,9 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                 className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
               >
                 <input
+                  name="categories"
                   type="checkbox"
-                  checked={selectedCategories.includes(category.id)}
+                  checked={selectedCategories.includes(category)}
                   onChange={() => onCategoryToggle(category.id)}
                   className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
                 />
@@ -86,7 +88,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
             <p>No categories available</p>
             <button
               type="button"
-              onClick={refetch}
+              onClick={() => refetch}
               className="mt-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
             >
               Refresh
