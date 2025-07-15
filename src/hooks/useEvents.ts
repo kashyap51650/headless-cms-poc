@@ -19,7 +19,6 @@ export const useEvents = (options: UseEventsOptions = {}) => {
     queryKey: queryKeys.eventsWithOptions(options),
     queryFn: () => EventService.getEvents(options),
     select: (data) => {
-      console.log("Fetched events:", data.items);
       return {
         events: data.items,
         total: data.total,
