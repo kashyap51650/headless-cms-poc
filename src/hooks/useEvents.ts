@@ -1,7 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EventService } from "../services/eventService";
 import { queryKeys } from "../lib/queryKeys";
-import type { Event } from "../types/event";
 
 interface UseEventsOptions {
   published?: boolean;
@@ -19,10 +18,13 @@ export const useEvents = (options: UseEventsOptions = {}) => {
   } = useQuery({
     queryKey: queryKeys.eventsWithOptions(options),
     queryFn: () => EventService.getEvents(options),
-    select: (data) => ({
-      events: data.items,
-      total: data.total,
-    }),
+    select: (data) => {
+      console.log("Fetched events:", data.items);
+      return {
+        events: data.items,
+        total: data.total,
+      };
+    },
   });
 
   return {

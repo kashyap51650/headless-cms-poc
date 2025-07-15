@@ -1,102 +1,58 @@
-// System metadata
-type Sys<T extends string = "Entry" | "Asset"> = {
-  id: string;
-  type: T;
-  createdAt?: string;
-  updatedAt?: string;
-  locale?: string;
-  space?: Link<"Space">;
-  environment?: Link<"Environment">;
-  contentType?: Link<"ContentType">;
-  publishedVersion?: number;
-  revision?: number;
-  linkType?: string;
-};
+import type { EntrySkeletonType, Asset } from "contentful";
 
-// Generic link type
-type Link<T extends string> = {
-  sys: {
-    type: "Link";
-    linkType: T;
-    id: string;
-  };
-};
-
-// Asset file details
-type Asset = {
-  metadata: { tags: any[]; concepts: any[] };
-  sys: Sys<"Asset">;
+// Category content type
+export interface CategorySkeleton extends EntrySkeletonType {
+  contentTypeId: "category";
   fields: {
     title: string;
-    description?: string;
-    file: {
-      url: string;
-      fileName: string;
-      contentType: string;
-      details: {
-        size: number;
-        image?: {
-          width: number;
-          height: number;
-        };
-      };
-    };
+    slug: string;
+    color?: string;
   };
-};
+}
 
-// Generic Entry type
-type Entry<T extends Record<string, any> = any> = {
-  metadata: { tags: any[]; concepts: any[] };
-  sys: Sys<"Entry">;
-  fields: T;
-};
-
-// Full Contentful API response
-type ContentfulResponse<T extends Record<string, any>> = {
-  sys: { type: "Array" };
-  total: number;
-  skip: number;
-  limit: number;
-  items: Entry<T>[];
-  includes?: {
-    Entry?: Entry<any>[];
-    Asset?: Asset[];
+// Speaker content type
+export interface SpeakerSkeleton extends EntrySkeletonType {
+  contentTypeId: "speaker";
+  fields: {
+    name: string;
+    bio?: string;
+    avatar?: Asset;
   };
-};
+}
 
-type EventFields = {
-  title: string;
-  slug: string;
-  date: string;
-  description: string;
-  banner: Link<"Asset">;
-  isPublished: boolean;
-  organizer: Link<"Entry">;
-  categories: Link<"Entry">[];
-  speakers: Link<"Entry">[];
-};
+// Author/Organizer content type
+export interface AuthorSkeleton extends EntrySkeletonType {
+  contentTypeId: "author";
+  fields: {
+    name: string;
+    email?: string;
+    image?: Asset;
+  };
+}
 
-type CategoryFields = {
-  title: string;
-  slug: string;
-};
+// Event content type
+export interface EventSkeleton extends EntrySkeletonType {
+  contentTypeId: "event";
+  fields: {
+    title: string;
+    slug: string;
+    date: string;
+    description: string;
+    banner?: Asset;
+    isPublished: boolean;
+    organizer?: AuthorSkeleton;
+    categories?: CategorySkeleton[];
+    speakers?: SpeakerSkeleton[];
+  };
+}
 
-type SpeakerFields = {
-  name: string;
-  avtar: Link<"Asset">;
-};
+// Legacy types for backward compatibility
+export type EventFields = EventSkeleton["fields"];
+export type CategoryFields = CategorySkeleton["fields"];
+export type SpeakerFields = SpeakerSkeleton["fields"];
+export type AuthorFields = AuthorSkeleton["fields"];
 
-type AuthorFields = {
-  name: string;
-  image: Link<"Asset">;
-};
-
-export type EventEntry = Entry<EventFields>;
-export type SpeakerEntry = Entry<SpeakerFields>;
-export type CategoryEntry = Entry<CategoryFields>;
-export type AuthorEntry = Entry<AuthorFields>;
-
-export type EventResponse = ContentfulResponse<EventFields>;
-export type CategoryResponse = ContentfulResponse<CategoryFields>;
-export type SpeakerResponse = ContentfulResponse<SpeakerFields>;
-export type AuthorResponse = ContentfulResponse<AuthorFields>;
+export type EventEntry = EventSkeleton;
+export type CategoryEntry = CategorySkeleton;
+export type SpeakerEntry = SpeakerSkeleton;
+export type AuthorEntry = AuthorSkeleton;

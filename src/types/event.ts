@@ -4,11 +4,11 @@ export interface Event {
   slug: string;
   date: string;
   description: string;
-  banner?: File | string;
+  banner?: string;
   isPublished: boolean;
-  organizer: string;
-  categories: string[];
-  speakers: string[];
+  organizer: Organizer;
+  categories: Category[];
+  speakers: Speaker[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -32,13 +32,6 @@ export interface Speaker {
   name: string;
   bio?: string;
   avatar?: string;
-  title?: string;
-  company?: string;
-  socialLinks?: {
-    twitter?: string;
-    linkedin?: string;
-    website?: string;
-  };
 }
 
 export interface EventFormData {
