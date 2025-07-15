@@ -10,7 +10,6 @@ import {
 } from "./dashboard";
 import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
-import { ErrorBoundary } from "./ErrorBoundary";
 
 interface EventsDashboardProps {
   onCreateEvent?: () => void;
@@ -45,10 +44,7 @@ export const EventsDashboard: React.FC<EventsDashboardProps> = ({
         !searchTerm ||
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.organizer.toLowerCase().includes(searchTerm.toLowerCase());
-
-      // Debug: Log categories to see their structure
-      console.log("Event categories for filtering:", event.categories);
+        event.organizer.name.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesCategory =
         !selectedCategory ||
@@ -129,15 +125,13 @@ export const EventsDashboard: React.FC<EventsDashboardProps> = ({
           onReset={handleResetFilters}
         />
 
-        <ErrorBoundary>
-          <EventsList
-            events={currentEvents}
-            loading={loading}
-            onView={onViewEvent}
-            onEdit={onEditEvent}
-            onDelete={onDeleteEvent}
-          />
-        </ErrorBoundary>
+        <EventsList
+          events={currentEvents}
+          loading={loading}
+          onView={onViewEvent}
+          onEdit={onEditEvent}
+          onDelete={onDeleteEvent}
+        />
 
         {totalPages > 1 && (
           <div className="mt-8">
