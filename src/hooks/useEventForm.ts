@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateEvent, useUpdateEvent } from "./useEvents";
 import { eventSchema, type EventFormData } from "../schemas/eventSchema";
+import { useCreateEvent, useUpdateEvent } from "./useEvents";
+import type { Category, Speaker } from "../types/event";
+import { categoryList, speakerList } from "../data";
 
 interface UseEventFormProps {
   initialData?: Partial<EventFormData & { id?: string }>;
@@ -15,13 +17,15 @@ export const useEventForm = ({
   onSuccess,
   onError,
 }: UseEventFormProps = {}) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    initialData?.categories || []
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>(
+    categoryList.filter((cat) => initialData?.categories?.includes(cat.id))
   );
-  const [selectedSpeakers, setSelectedSpeakers] = useState<string[]>(
-    initialData?.speakers || []
+  const [selectedSpeakers, setSelectedSpeakers] = useState<Speaker[]>(
+    speakerList.filter((speaker) => initialData?.speakers?.includes(speaker.id))
   );
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(
+    initialData?.banner || null
+  );
 
   const createEventMutation = useCreateEvent();
   const updateEventMutation = useUpdateEvent();
@@ -30,17 +34,25 @@ export const useEventForm = ({
   const isUpdating = updateEventMutation.isPending;
   const isLoading = isCreating || isUpdating;
 
+  const formatDateForInput = (dateString?: string): string => {
+    if (!dateString) return "";
+    if (dateString.includes("T")) {
+      return new Date(dateString).toISOString().slice(0, 16);
+    }
+    return dateString;
+  };
+
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: initialData?.title || "",
       slug: initialData?.slug || "",
-      date: initialData?.date || "",
+      date: formatDateForInput(initialData?.date),
       description: initialData?.description || "",
       isPublished: initialData?.isPublished || false,
-      organizer: initialData?.organizer || "",
-      categories: selectedCategories,
-      speakers: selectedSpeakers,
+      organizer: initialData?.organizer,
+      categories: selectedCategories.map((cat) => cat.id),
+      speakers: selectedSpeakers.map((speaker) => speaker.id),
     },
   });
 
@@ -72,51 +84,56 @@ export const useEventForm = ({
   };
 
   const handleCategoryToggle = (categoryId: string) => {
-    const updatedCategories = selectedCategories.includes(categoryId)
-      ? selectedCategories.filter((id) => id !== categoryId)
-      : [...selectedCategories, categoryId];
+    // find the speaker
+    const category = categoryList.find((c) => c.id === categoryId);
 
-    setSelectedCategories(updatedCategories);
-    form.setValue("categories", updatedCategories);
+    if (category) {
+      // if speaker is already selected, remove it
+      const updatedCategories = selectedCategories.includes(category)
+        ? selectedCategories.filter((s) => s.id !== category.id)
+        : [...selectedCategories, category];
+      setSelectedCategories(updatedCategories);
+      form.setValue(
+        "categories",
+        updatedCategories.map((s) => s.id)
+      );
+    }
   };
 
   const handleSpeakerToggle = (speakerId: string) => {
-    const updatedSpeakers = selectedSpeakers.includes(speakerId)
-      ? selectedSpeakers.filter((id) => id !== speakerId)
-      : [...selectedSpeakers, speakerId];
+    // find the speaker
+    const speaker = speakerList.find((s) => s.id === speakerId);
 
-    setSelectedSpeakers(updatedSpeakers);
-    form.setValue("speakers", updatedSpeakers);
+    if (speaker) {
+      // if speaker is already selected, remove it
+      const updatedSpeakers = selectedSpeakers.includes(speaker)
+        ? selectedSpeakers.filter((s) => s.id !== speaker.id)
+        : [...selectedSpeakers, speaker];
+      setSelectedSpeakers(updatedSpeakers);
+      form.setValue(
+        "speakers",
+        updatedSpeakers.map((s) => s.id)
+      );
+    }
   };
 
   const onFormSubmit = async (data: EventFormData) => {
     try {
-      console.log("Form submitted:", data);
-
       // If this is a new event (no initial ID), create it
       if (!initialData?.id) {
-        const eventData = {
-          title: data.title,
-          slug: data.slug,
-          date: data.date,
-          description: data.description,
-          banner: data.banner,
-          isPublished: data.isPublished,
-          organizer: data.organizer,
-          categories: data.categories,
-          speakers: data.speakers,
-        };
-
-        createEventMutation.mutate(eventData, {
-          onSuccess: (createdEvent) => {
-            console.log("Event created:", createdEvent);
-            onSuccess?.(createdEvent);
-          },
-          onError: (error) => {
-            console.error("Error creating event:", error);
-            onError?.(error);
-          },
-        });
+        createEventMutation.mutate(
+          { ...data, id: initialData?.id },
+          {
+            onSuccess: (createdEvent) => {
+              console.log("Event created:", createdEvent);
+              onSuccess?.(createdEvent);
+            },
+            onError: (error) => {
+              console.error("Error creating event:", error);
+              onError?.(error);
+            },
+          }
+        );
       } else {
         // If editing, update the event
         updateEventMutation.mutate(

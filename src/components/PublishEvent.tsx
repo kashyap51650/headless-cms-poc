@@ -13,6 +13,7 @@ import {
   PublishSettingsSection,
   FormActions,
 } from "./index";
+import { categoryList, speakerList } from "../data";
 
 interface PublishEventProps {
   initialData?: Partial<EventFormData>;
@@ -32,12 +33,16 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
     ? {
         title: editingEvent.title,
         slug: editingEvent.slug,
-        date: editingEvent.date,
+        date: editingEvent.date
+          ? new Date(editingEvent.date).toISOString().slice(0, 16)
+          : "",
         description: editingEvent.description,
-        organizer: editingEvent.organizer,
-        categories: editingEvent.categories,
-        speakers: editingEvent.speakers,
+        organizer: editingEvent.organizer.id,
+        categories: editingEvent.categories.map((cat) => cat.id),
+        speakers: editingEvent.speakers.map((speaker) => speaker.id),
         isPublished: editingEvent.isPublished,
+        banner: editingEvent.banner,
+        id: editingEvent?.id,
         ...initialData,
       }
     : initialData;
@@ -51,7 +56,7 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
     handleBannerChange,
     handleCategoryToggle,
     handleSpeakerToggle,
-    onFormSubmit,
+    onSubmit,
   } = useEventForm({ initialData: formInitialData });
 
   const {
@@ -101,7 +106,7 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
           }
         />
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <BasicInfoSection register={register} errors={errors} />
 
           <BannerUploadSection
@@ -110,14 +115,12 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
             onBannerChange={handleBannerChange}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <OrganizerSection register={register} errors={errors} />
-            <CategoriesSection
-              selectedCategories={selectedCategories}
-              onCategoryToggle={handleCategoryToggle}
-              errors={errors}
-            />
-          </div>
+          <OrganizerSection register={register} errors={errors} />
+          <CategoriesSection
+            selectedCategories={selectedCategories}
+            onCategoryToggle={handleCategoryToggle}
+            errors={errors}
+          />
 
           <SpeakersSection
             selectedSpeakers={selectedSpeakers}
