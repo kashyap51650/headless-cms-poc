@@ -5,7 +5,7 @@ import { Card } from "../ui/Card";
 import { FormField } from "../ui/FormField";
 import { Select } from "../ui/Select";
 import type { EventFormData } from "../../schemas/eventSchema";
-import { organizerList } from "../../data";
+import { useAuthors } from "../../hooks/useAuthors";
 
 interface OrganizerSectionProps {
   register: UseFormRegister<EventFormData>;
@@ -16,10 +16,7 @@ export const OrganizerSection: React.FC<OrganizerSectionProps> = ({
   register,
   errors,
 }) => {
-  const organizerOptions = organizerList.map((org) => ({
-    value: org.id,
-    label: org.name,
-  }));
+  const { authors } = useAuthors();
 
   return (
     <Card title="Organizer" icon={<User className="w-6" />}>
@@ -32,7 +29,10 @@ export const OrganizerSection: React.FC<OrganizerSectionProps> = ({
         <Select
           {...register("organizer")}
           id="organizer"
-          options={organizerOptions}
+          options={authors.map((author) => ({
+            value: author.id,
+            label: author.name,
+          }))}
           placeholder="Select organizer"
           error={!!errors.organizer}
         />

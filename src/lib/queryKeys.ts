@@ -12,4 +12,6 @@ export const queryKeys = {
   categories: ["categories"] as const,
   category: (id: string) => ["categories", id] as const,
   categoryBySlug: (slug: string) => ["categories", "slug", slug] as const,
+  speakers: ["speakers"] as const,
+  authors: ["authors"] as const,
 } as const;

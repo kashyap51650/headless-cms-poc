@@ -1,4 +1,4 @@
-import client from "../contentfulClient";
+import { client } from "../contentfulClient";
 import type { EntrySkeletonType } from "contentful";
 import type { Category } from "../types/event";
 import { categoryList } from "../data";
