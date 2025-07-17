@@ -53,24 +53,6 @@ export const useEvent = (id: string) => {
   };
 };
 
-export const useEventBySlug = (slug: string) => {
-  const {
-    data: event,
-    isLoading: loading,
-    error,
-  } = useQuery({
-    queryKey: queryKeys.eventBySlug(slug),
-    queryFn: () => EventService.getEventBySlug(slug),
-    enabled: !!slug,
-  });
-
-  return {
-    event: event ?? null,
-    loading,
-    error: error?.message ?? null,
-  };
-};
-
 export const useEventSearch = (query: string) => {
   const {
     data: events,

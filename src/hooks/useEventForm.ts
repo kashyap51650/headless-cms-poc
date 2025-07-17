@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema, type EventFormData } from "../schemas/eventSchema";
 import { useCreateEvent, useUpdateEvent } from "./useEvents";
 import type { Category, Speaker } from "../types/event";
-import { categoryList, speakerList } from "../data";
+import { useCategories } from "./useCategories";
+import { useSpeakers } from "./useSpeakers";
 
 interface UseEventFormProps {
   initialData?: Partial<EventFormData & { id?: string }>;
@@ -17,11 +18,14 @@ export const useEventForm = ({
   onSuccess,
   onError,
 }: UseEventFormProps = {}) => {
+  const { categories } = useCategories();
+  const { speakers } = useSpeakers();
+
   const [selectedCategories, setSelectedCategories] = useState<Category[]>(
-    categoryList.filter((cat) => initialData?.categories?.includes(cat.id))
+    categories.filter((cat) => initialData?.categories?.includes(cat.id))
   );
   const [selectedSpeakers, setSelectedSpeakers] = useState<Speaker[]>(
-    speakerList.filter((speaker) => initialData?.speakers?.includes(speaker.id))
+    speakers.filter((speaker) => initialData?.speakers?.includes(speaker.id))
   );
   const [bannerPreview, setBannerPreview] = useState<string | null>(
     initialData?.banner || null
@@ -85,7 +89,7 @@ export const useEventForm = ({
 
   const handleCategoryToggle = (categoryId: string) => {
     // find the speaker
-    const category = categoryList.find((c) => c.id === categoryId);
+    const category = categories.find((c) => c.id === categoryId);
 
     if (category) {
       // if speaker is already selected, remove it
@@ -102,7 +106,7 @@ export const useEventForm = ({
 
   const handleSpeakerToggle = (speakerId: string) => {
     // find the speaker
-    const speaker = speakerList.find((s) => s.id === speakerId);
+    const speaker = speakers.find((s) => s.id === speakerId);
 
     if (speaker) {
       // if speaker is already selected, remove it
@@ -122,7 +126,7 @@ export const useEventForm = ({
       // If this is a new event (no initial ID), create it
       if (!initialData?.id) {
         createEventMutation.mutate(
-          { ...data, id: initialData?.id },
+          { ...data, banner: bannerPreview },
           {
             onSuccess: (createdEvent) => {
               console.log("Event created:", createdEvent);

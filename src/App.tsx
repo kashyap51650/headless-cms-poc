@@ -44,7 +44,6 @@ function App() {
         )}
         {(currentView === "create-event" || currentView === "edit-event") && (
           <PublishEvent
-            isLoading={false}
             editingEvent={editingEvent}
             onBack={handleBackToDashboard}
           />

@@ -1,5 +1,6 @@
-import client from "../contentfulClient";
+import { client, managementClient } from "../contentfulClient";
 import { dummyEvents } from "../data";
+import type { EventFormData } from "../schemas/eventSchema";
 import globalSettings from "../setting";
 import type { EventEntry } from "../types/contentful";
 import type { Event } from "../types/event";
@@ -109,28 +110,6 @@ export class EventService {
   }
 
   /**
-   * Fetch a single event by slug
-   */
-  static async getEventBySlug(slug: string): Promise<Event | null> {
-    try {
-      const response = await client.getEntries<any>({
-        content_type: "event",
-        "fields.slug": slug,
-        limit: 1,
-        include: 2,
-      });
-
-      if (response.items.length > 0) {
-        return transformEventEntry(response.items[0]);
-      }
-      return null;
-    } catch (error) {
-      console.error("Error fetching event by slug:", error);
-      return null;
-    }
-  }
-
-  /**
    * Search events
    */
   static async searchEvents(
@@ -173,15 +152,138 @@ export class EventService {
     }
   }
 
+  static async uploadAsset(file: File): Promise<string> {
+    try {
+      const space = await managementClient.getSpace(
+        import.meta.env.VITE_SPACE_ID
+      );
+      const environment = await space.getEnvironment("master");
+
+      const upload = await environment.createUpload({ file: new Blob([file]) });
+
+      const uploadId = upload.sys.id;
+
+      // 1. Prepare the file (example: fetching from a URL)
+      const assetData = {
+        fields: {
+          title: {
+            "en-US": "Event Banner",
+          },
+          file: {
+            "en-US": {
+              contentType: file.type,
+              fileName: file.name,
+              uploadFrom: {
+                // This is the crucial change: linking to the upload ID
+                sys: {
+                  type: "Link",
+                  linkType: "Upload",
+                  id: uploadId,
+                },
+              },
+            },
+          },
+        },
+      };
+
+      // 2. Create the Asset entry
+      const asset = await environment.createAsset(assetData);
+      console.log("Created Asset Entry:", asset);
+
+      // 3. Process the Asset
+      const processedAsset = await asset.processForAllLocales();
+      console.log("Processed Asset:", processedAsset);
+
+      // 4. Publish the Asset (optional)
+      const publishedAsset = await processedAsset.publish();
+      console.log("Published Asset:", publishedAsset);
+
+      return publishedAsset.sys.id; // Return the asset ID for linking to the event entry
+    } catch (error) {
+      console.error("Error uploading banner:", error);
+      return "";
+    }
+  }
+
   /**
    * Create a new event (placeholder - requires Contentful Management API)
    */
-  static async createEvent(eventData: any): Promise<Event> {
-    // This would require Contentful Management API
-    console.log("Creating event:", eventData);
-    throw new Error(
-      "Create event not implemented - requires Contentful Management API"
-    );
+  static async createEvent(eventData: EventFormData) {
+    if (globalSettings.renderStaticData) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Creating event in static mode:", eventData);
+      return eventData;
+    }
+
+    try {
+      const space = await managementClient.getSpace(
+        import.meta.env.VITE_SPACE_ID
+      );
+      const environment = await space.getEnvironment("master");
+
+      let assetId = "";
+
+      if (eventData.banner) {
+        assetId = await EventService.uploadAsset(eventData.banner);
+      }
+
+      const data: { fields: Record<string, any> } = {
+        fields: {
+          title: { "en-US": eventData.title },
+          slug: { "en-US": eventData.slug },
+          date: { "en-US": eventData.date },
+          description: { "en-US": eventData.description },
+          isPublished: { "en-US": eventData.isPublished },
+          organizer: {
+            "en-US": {
+              sys: {
+                type: "Link",
+                linkType: "Entry",
+                id: eventData.organizer,
+              },
+            },
+          },
+          categories: {
+            "en-US": eventData.categories.map((cat) => ({
+              sys: {
+                type: "Link",
+                linkType: "Entry",
+                id: cat,
+              },
+            })),
+          },
+          speakers: {
+            "en-US": eventData.speakers.map((speaker) => ({
+              sys: {
+                type: "Link",
+                linkType: "Entry",
+                id: speaker,
+              },
+            })),
+          },
+          ...(assetId && {
+            banner: {
+              "en-US": {
+                sys: {
+                  type: "Link",
+                  linkType: "Asset",
+                  id: assetId,
+                },
+              },
+            },
+          }),
+        },
+      };
+
+      const entry = await environment.createEntry("event", data);
+      console.log("Created Event Entry:", entry);
+
+      // Optionally, publish the entry to make it visible via the Content Delivery API
+      // const publishedEntry = await entry.publish();
+      // console.log("Published Event Entry:", publishedEntry);
+    } catch (error) {
+      console.error("Error creating event:", error);
+    }
   }
 
   /**
@@ -215,7 +317,6 @@ export class EventService {
 // Export individual functions for backward compatibility
 export const getEvents = EventService.getEvents;
 export const getEventById = EventService.getEventById;
-export const getEventBySlug = EventService.getEventBySlug;
 export const searchEvents = EventService.searchEvents;
 export const getEventsByCategory = EventService.getEventsByCategory;
 export const createEvent = EventService.createEvent;

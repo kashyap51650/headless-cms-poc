@@ -13,19 +13,16 @@ import {
   PublishSettingsSection,
   FormActions,
 } from "./index";
-import { categoryList, speakerList } from "../data";
 
 interface PublishEventProps {
   initialData?: Partial<EventFormData>;
   editingEvent?: Event | null;
-  isLoading?: boolean;
   onBack?: () => void;
 }
 
 export const PublishEvent: React.FC<PublishEventProps> = ({
   initialData,
   editingEvent,
-  isLoading = false,
   onBack,
 }) => {
   // Convert editingEvent to initial form data if editing
@@ -56,13 +53,14 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
     handleBannerChange,
     handleCategoryToggle,
     handleSpeakerToggle,
+    isLoading,
     onSubmit,
   } = useEventForm({ initialData: formInitialData });
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
   } = form;
   const isPublished = watch("isPublished");
@@ -132,11 +130,7 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
             isPublished={isPublished}
           />
 
-          <FormActions
-            isValid={isValid}
-            isLoading={isLoading}
-            onSaveDraft={() => console.log("Save as draft")}
-          />
+          <FormActions saveDraft={!isPublished} isLoading={isLoading} />
         </form>
       </div>
     </div>

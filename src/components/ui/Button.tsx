@@ -41,7 +41,7 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       className={`${baseClasses} ${variants[variant]} ${
         sizes[size]
-      } ${className} ${isDisabled ? "cursor-not-allowed" : ""}`}
+      } ${className} ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       disabled={isDisabled}
       {...props}
     >
