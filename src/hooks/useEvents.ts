@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EventService } from "../services/eventService";
 import { queryKeys } from "../lib/queryKeys";
+import { queryClient } from "../lib/queryClient";
 
 interface UseEventsOptions {
   published?: boolean;
@@ -53,6 +54,23 @@ export const useEvent = (id: string) => {
   };
 };
 
+export const useDraftEvents = () => {
+  const {
+    data: events,
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.previewEvents,
+    queryFn: () => EventService.getPreviewEvents(),
+  });
+
+  return {
+    events: events ?? [],
+    loading,
+    error: error?.message ?? null,
+  };
+};
+
 export const useEventSearch = (query: string) => {
   const {
     data: events,
@@ -93,8 +111,6 @@ export const useEventsByCategory = (categoryId: string) => {
 
 // Mutations
 export const useCreateEvent = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: EventService.createEvent,
     onSuccess: () => {
@@ -105,8 +121,6 @@ export const useCreateEvent = () => {
 };
 
 export const useUpdateEvent = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       EventService.updateEvent(id, data),

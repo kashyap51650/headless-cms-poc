@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import type { Event } from "../types/event";
-import { useEvents } from "../hooks/useEvents";
+import { useEvents, useDraftEvents } from "../hooks/useEvents";
 import { useCategories } from "../hooks/useCategories";
 import {
   DashboardHeader,
@@ -11,35 +11,38 @@ import {
 import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
 
-interface EventsDashboardProps {
-  onCreateEvent?: () => void;
-  onEditEvent?: (event: Event) => void;
-  onViewEvent?: (event: Event) => void;
-  onDeleteEvent?: (event: Event) => void;
-}
-
-export const EventsDashboard: React.FC<EventsDashboardProps> = ({
-  onCreateEvent,
-  onEditEvent,
-  onViewEvent,
-  onDeleteEvent,
-}) => {
+export const EventsDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [isDraftMode, setIsDraftMode] = useState(false);
 
   const itemsPerPage = 12;
 
-  const { events, loading, error, total } = useEvents({
+  // Use different hooks based on mode
+  const publishedEventsQuery = useEvents({
+    published: true,
     limit: itemsPerPage,
     skip: (currentPage - 1) * itemsPerPage,
   });
+
+  const draftEventsQuery = useDraftEvents();
+
+  // Choose the appropriate data based on mode
+  const { events, loading, error, total } = isDraftMode
+    ? {
+        events: draftEventsQuery.events,
+        loading: draftEventsQuery.loading,
+        error: draftEventsQuery.error,
+        total: draftEventsQuery.events.length,
+      }
+    : publishedEventsQuery;
 
   const { categories, loading: loadingCategories } = useCategories();
 
   // Filter events based on search and category
   const filteredEvents = useMemo(() => {
-    return events.filter((event) => {
+    return events.filter((event: Event) => {
       const matchesSearch =
         !searchTerm ||
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -49,12 +52,10 @@ export const EventsDashboard: React.FC<EventsDashboardProps> = ({
       const matchesCategory =
         !selectedCategory ||
         (Array.isArray(event.categories) &&
-          event.categories.some((cat) => {
+          event.categories.some((cat: any) => {
             // Handle both string and object cases
             const categoryId =
-              typeof cat === "string"
-                ? cat
-                : (cat as any)?.id || (cat as any)?.sys?.id;
+              typeof cat === "string" ? cat : cat?.id || cat?.sys?.id;
             return categoryId === selectedCategory;
           }));
 
@@ -90,6 +91,13 @@ export const EventsDashboard: React.FC<EventsDashboardProps> = ({
     setCurrentPage(page);
   };
 
+  const handleModeToggle = () => {
+    setIsDraftMode(!isDraftMode);
+    setCurrentPage(1); // Reset to first page when switching modes
+    setSearchTerm(""); // Clear search when switching modes
+    setSelectedCategory(""); // Clear category filter when switching modes
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
@@ -110,7 +118,11 @@ export const EventsDashboard: React.FC<EventsDashboardProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto">
-        <DashboardHeader total={total} onCreateEvent={onCreateEvent} />
+        <DashboardHeader
+          total={total}
+          isDraftMode={isDraftMode}
+          onModeToggle={handleModeToggle}
+        />
 
         <SearchAndFilters
           searchTerm={searchTerm}
@@ -125,13 +137,7 @@ export const EventsDashboard: React.FC<EventsDashboardProps> = ({
           onReset={handleResetFilters}
         />
 
-        <EventsList
-          events={currentEvents}
-          loading={loading}
-          onView={onViewEvent}
-          onEdit={onEditEvent}
-          onDelete={onDeleteEvent}
-        />
+        <EventsList events={currentEvents} loading={loading} />
 
         {totalPages > 1 && (
           <div className="mt-8">

@@ -1,6 +1,5 @@
 import React from "react";
 import { useEventForm } from "../hooks/useEventForm";
-import type { EventFormData } from "../schemas/eventSchema";
 import type { Event } from "../types/event";
 import { Button } from "./ui/Button";
 import {
@@ -13,19 +12,14 @@ import {
   PublishSettingsSection,
   FormActions,
 } from "./index";
+import { useLocation, useNavigate } from "react-router";
 
-interface PublishEventProps {
-  initialData?: Partial<EventFormData>;
-  editingEvent?: Event | null;
-  onBack?: () => void;
-}
+export const PublishEvent: React.FC = () => {
+  const { state } = useLocation();
+  const navigate = useNavigate();
 
-export const PublishEvent: React.FC<PublishEventProps> = ({
-  initialData,
-  editingEvent,
-  onBack,
-}) => {
-  // Convert editingEvent to initial form data if editing
+  const editingEvent = (state?.event as Event) || null;
+
   const formInitialData = editingEvent
     ? {
         title: editingEvent.title,
@@ -37,12 +31,11 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
         organizer: editingEvent.organizer.id,
         categories: editingEvent.categories.map((cat) => cat.id),
         speakers: editingEvent.speakers.map((speaker) => speaker.id),
-        isPublished: editingEvent.isPublished,
+        isPublished: false, // Default to false for editing
         banner: editingEvent.banner,
         id: editingEvent?.id,
-        ...initialData,
       }
-    : initialData;
+    : undefined;
 
   const {
     form,
@@ -66,35 +59,38 @@ export const PublishEvent: React.FC<PublishEventProps> = ({
   const isPublished = watch("isPublished");
   const title = watch("title");
 
+  const onBackButtonClick = () => {
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-3xl mx-auto">
         {/* Back Button */}
-        {onBack && (
-          <div className="mb-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onBack}
-              className="inline-flex items-center"
+
+        <div className="mb-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onBackButtonClick}
+            className="inline-flex items-center"
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to Dashboard
-            </Button>
-          </div>
-        )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Dashboard
+          </Button>
+        </div>
 
         <EventHeader
           isPublished={isPublished}

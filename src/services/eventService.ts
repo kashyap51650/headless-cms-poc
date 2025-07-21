@@ -1,4 +1,4 @@
-import { client, managementClient } from "../contentfulClient";
+import { client, managementClient, previewClient } from "../contentfulClient";
 import { dummyEvents } from "../data";
 import type { EventFormData } from "../schemas/eventSchema";
 import globalSettings from "../setting";
@@ -52,8 +52,8 @@ export class EventService {
   ): Promise<{ items: Event[]; total: number }> {
     if (globalSettings.renderStaticData) {
       return {
-        items: dummyEvents,
-        total: dummyEvents.length,
+        items: this.getFallbackEvents().filter((event) => event.isPublished),
+        total: this.getFallbackEvents().length,
       };
     }
 
@@ -64,18 +64,6 @@ export class EventService {
         skip: options.skip || 0,
         include: 2, // Include linked entries (organizer, categories, speakers)
       };
-
-      // Filter by published status if specified
-      if (options.published !== undefined) {
-        queryParams["fields.isPublished"] = options.published;
-      }
-
-      // Add ordering
-      if (options.orderBy) {
-        queryParams.order = [options.orderBy];
-      } else {
-        queryParams.order = ["-fields.date"]; // Default: newest first
-      }
 
       const response = await client.getEntries<EventEntry>(queryParams);
 
@@ -90,9 +78,36 @@ export class EventService {
 
       // Return fallback data
       return {
-        items: this.getFallbackEvents(),
+        items: this.getFallbackEvents().filter((event) => event.isPublished),
         total: this.getFallbackEvents().length,
       };
+    }
+  }
+
+  /**
+   * Fetch draft events from Contentful
+   */
+  static async getPreviewEvents(): Promise<Event[]> {
+    if (globalSettings.renderStaticData) {
+      return this.getFallbackEvents().filter((event) => !event.isPublished);
+    }
+
+    try {
+      // Get unpublished events (drafts)
+      const response = await previewClient.getEntries({
+        content_type: "event",
+        include: 2,
+      });
+
+      return (
+        response.items
+          // .filter((item) => item.fields.isPublished === false)
+          .map(transformEventEntry)
+      );
+    } catch (error) {
+      console.error("Error fetching preview events:", error);
+      // Return draft events from fallback data
+      return this.getFallbackEvents().filter((event) => !event.isPublished);
     }
   }
 
@@ -117,7 +132,7 @@ export class EventService {
     options: { published?: boolean; limit?: number } = {}
   ): Promise<Event[]> {
     try {
-      const response = await client.getEntries<EventEntry>({
+      const response = await client.getEntries<any>({
         content_type: "event",
         query,
         limit: options.limit || 20,
@@ -278,9 +293,10 @@ export class EventService {
       const entry = await environment.createEntry("event", data);
       console.log("Created Event Entry:", entry);
 
-      // Optionally, publish the entry to make it visible via the Content Delivery API
-      // const publishedEntry = await entry.publish();
-      // console.log("Published Event Entry:", publishedEntry);
+      if (eventData.isPublished) {
+        const publishedEntry = await entry.publish();
+        console.log("Published Event Entry:", publishedEntry);
+      }
     } catch (error) {
       console.error("Error creating event:", error);
     }
@@ -290,10 +306,80 @@ export class EventService {
    * Update an event (placeholder - requires Contentful Management API)
    */
   static async updateEvent(id: string, eventData: any): Promise<Event> {
-    console.log("Updating event:", id, eventData);
-    throw new Error(
-      "Update event not implemented - requires Contentful Management API"
-    );
+    if (globalSettings.renderStaticData) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Updating event:", eventData);
+      return eventData;
+    }
+
+    try {
+      const space = await managementClient.getSpace(
+        import.meta.env.VITE_SPACE_ID
+      );
+      const environment = await space.getEnvironment("master");
+
+      const entry = await environment.getEntry(id);
+      console.log("Fetched Event Entry for Update:", entry);
+
+      // Update fields
+      entry.fields.title["en-US"] = eventData.title;
+      entry.fields.slug["en-US"] = eventData.slug;
+      entry.fields.date["en-US"] = eventData.date;
+      entry.fields.description["en-US"] = eventData.description;
+      entry.fields.isPublished["en-US"] = eventData.isPublished;
+      entry.fields.organizer["en-US"] = {
+        sys: {
+          type: "Link",
+          linkType: "Entry",
+          id: eventData.organizer,
+        },
+      };
+      entry.fields.categories["en-US"] = eventData.categories.map(
+        (catId: string) => ({
+          sys: {
+            type: "Link",
+            linkType: "Entry",
+            id: catId,
+          },
+        })
+      );
+      entry.fields.speakers["en-US"] = eventData.speakers.map(
+        (speakerId: string) => ({
+          sys: {
+            type: "Link",
+            linkType: "Entry",
+            id: speakerId,
+          },
+        })
+      );
+
+      if (eventData.banner) {
+        console.log("Uploading banner for event:", eventData.banner);
+        const assetId = await EventService.uploadAsset(eventData.banner);
+        entry.fields.banner["en-US"] = {
+          sys: {
+            type: "Link",
+            linkType: "Asset",
+            id: assetId,
+          },
+        };
+      }
+
+      console.log("Updated Event Entry Fields:", entry.fields);
+
+      const updatedEntry = await entry.update();
+
+      if (eventData.isPublished) {
+        const publishedEntry = await updatedEntry.publish();
+        console.log("Published Updated Event Entry:", publishedEntry);
+        return transformEventEntry(publishedEntry);
+      }
+
+      return transformEventEntry(updatedEntry);
+    } catch (error) {
+      console.error("Error updating event:", error);
+      return {} as Event;
+    }
   }
 
   /**

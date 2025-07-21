@@ -256,6 +256,34 @@ export const dummyEvents = [
   },
 ];
 
+export const draftEvents = [
+  {
+    id: "13",
+    title: "Upcoming Tech Trends",
+    slug: "upcoming-tech-trends",
+    date: "2025-12-20T10:00:00Z",
+    description: "A sneak peek into the future of technology.",
+    banner:
+      "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=800&h=400&fit=crop",
+    isPublished: false,
+    organizer: {
+      id: "1",
+      name: "Tech Events Inc",
+      email: "contact@techevents.com",
+    },
+    categories: [
+      { id: "1", title: "Technology", slug: "technology" },
+      { id: "2", title: "Web Development", slug: "web-development" },
+    ],
+    speakers: [
+      { id: "1", name: "John Doe", bio: "React core team member" },
+      { id: "2", name: "Jane Smith", bio: "Frontend architect" },
+    ],
+    createdAt: "2025-01-13T00:00:00Z",
+    updatedAt: "2025-01-13T00:00:00Z",
+  },
+];
+
 export const categoryList = [
   { id: "1", title: "Technology", slug: "technology" },
   { id: "2", title: "Web Development", slug: "web-development" },

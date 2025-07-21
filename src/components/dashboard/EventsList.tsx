@@ -5,18 +5,9 @@ import { EventCard } from "./EventCard";
 interface EventsListProps {
   events: Event[];
   loading: boolean;
-  onView?: (event: Event) => void;
-  onEdit?: (event: Event) => void;
-  onDelete?: (event: Event) => void;
 }
 
-export const EventsList: React.FC<EventsListProps> = ({
-  events,
-  loading,
-  onView,
-  onEdit,
-  onDelete,
-}) => {
+export const EventsList: React.FC<EventsListProps> = ({ events, loading }) => {
   if (loading) {
     const skeletonItems = Array.from({ length: 6 }, (_, i) => `skeleton-${i}`);
 
@@ -62,13 +53,7 @@ export const EventsList: React.FC<EventsListProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events.map((event) => (
-        <EventCard
-          key={event.id}
-          event={event}
-          onView={onView}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <EventCard key={event.id} event={event} />
       ))}
     </div>
   );

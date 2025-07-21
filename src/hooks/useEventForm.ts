@@ -122,41 +122,36 @@ export const useEventForm = ({
   };
 
   const onFormSubmit = async (data: EventFormData) => {
-    try {
-      // If this is a new event (no initial ID), create it
-      if (!initialData?.id) {
-        createEventMutation.mutate(
-          { ...data, banner: bannerPreview },
-          {
-            onSuccess: (createdEvent) => {
-              console.log("Event created:", createdEvent);
-              onSuccess?.(createdEvent);
-            },
-            onError: (error) => {
-              console.error("Error creating event:", error);
-              onError?.(error);
-            },
-          }
-        );
-      } else {
-        // If editing, update the event
-        updateEventMutation.mutate(
-          { id: initialData.id, data },
-          {
-            onSuccess: (updatedEvent) => {
-              console.log("Event updated:", updatedEvent);
-              onSuccess?.(updatedEvent);
-            },
-            onError: (error) => {
-              console.error("Error updating event:", error);
-              onError?.(error);
-            },
-          }
-        );
-      }
-    } catch (error) {
-      console.error("Error saving event:", error);
-      onError?.(error as Error);
+    if (!initialData?.id) {
+      console.log("Creating new event with data:", data);
+      createEventMutation.mutate(
+        { ...data, banner: bannerPreview },
+        {
+          onSuccess: (createdEvent) => {
+            console.log("Event created:", createdEvent);
+            onSuccess?.(createdEvent);
+          },
+          onError: (error) => {
+            console.error("Error creating event:", error);
+            onError?.(error);
+          },
+        }
+      );
+    } else {
+      console.log("Updating existing event with data:", data);
+      // If editing, update the event
+      updateEventMutation.mutate(
+        { id: initialData.id, data },
+        {
+          onSuccess: (updatedEvent) => {
+            console.log("Event updated:", updatedEvent);
+          },
+          onError: (error) => {
+            console.error("Error updating event:", error);
+            onError?.(error);
+          },
+        }
+      );
     }
   };
 

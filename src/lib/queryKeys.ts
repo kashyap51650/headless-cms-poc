@@ -1,6 +1,7 @@
 export const queryKeys = {
   // Events
   events: ["events"] as const,
+  previewEvents: ["previewEvents"] as const,
   eventsWithOptions: (options: any) => ["events", options] as const,
   event: (id: string) => ["events", id] as const,
   eventBySlug: (slug: string) => ["events", "slug", slug] as const,

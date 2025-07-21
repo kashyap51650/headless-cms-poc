@@ -2,20 +2,21 @@ import React from "react";
 import { Calendar, Eye, Edit, Trash2, Users } from "lucide-react";
 import { Button } from "../ui/Button";
 import type { Event } from "../../types/event";
+import { useNavigate } from "react-router";
 
 interface EventCardProps {
   event: Event;
-  onView?: (event: Event) => void;
-  onEdit?: (event: Event) => void;
-  onDelete?: (event: Event) => void;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({
-  event,
-  onView,
-  onEdit,
-  onDelete,
-}) => {
+export const EventCard: React.FC<EventCardProps> = ({ event }) => {
+  const navigate = useNavigate();
+
+  const onEditButtonClick = () => {
+    navigate(`/edit-event/${event.id}`, {
+      state: { event },
+    });
+  };
+
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString("en-US", {
@@ -34,16 +35,16 @@ export const EventCard: React.FC<EventCardProps> = ({
   return (
     <div className="bg-white rounded-2xl shadow-xl group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative">
-        {event.banner && (
-          <div className="h-48 bg-gradient-to-br from-primary-500 to-primary-700 rounded-t-xl relative overflow-hidden">
+        <div className="h-48 bg-gradient-to-br from-secondary-500 to-secondary-700 rounded-t-xl relative overflow-hidden">
+          {event.banner && (
             <img
               src={event.banner}
               alt={event.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-opacity-80" />
-          </div>
-        )}
+          )}
+          <div className="absolute inset-0 bg-opacity-80" />
+        </div>
 
         <div className={`p-6 ${!event.banner ? "pt-8" : ""}`}>
           <div className="flex justify-between items-start mb-4">
@@ -126,7 +127,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
           <div className="flex space-x-2">
             <Button
-              onClick={() => onView?.(event)}
+              onClick={() => {}}
               variant="outline"
               size="sm"
               icon={<Eye className="w-4 h-4" />}
@@ -135,7 +136,7 @@ export const EventCard: React.FC<EventCardProps> = ({
               View
             </Button>
             <Button
-              onClick={() => onEdit?.(event)}
+              onClick={onEditButtonClick}
               variant="outline"
               size="sm"
               icon={<Edit className="w-4 h-4" />}
@@ -144,7 +145,7 @@ export const EventCard: React.FC<EventCardProps> = ({
               Edit
             </Button>
             <Button
-              onClick={() => onDelete?.(event)}
+              onClick={() => {}}
               variant="outline"
               size="sm"
               icon={<Trash2 className="w-4 h-4" />}
