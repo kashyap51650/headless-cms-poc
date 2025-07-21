@@ -1,24 +1,36 @@
 import React from "react";
 import { Plus, Eye, FileText } from "lucide-react";
 import { Button } from "../ui/Button";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 interface DashboardHeaderProps {
   total: number;
-  isDraftMode?: boolean;
-  onModeToggle?: () => void;
 }
 
-export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
-  total,
-  isDraftMode = false,
-  onModeToggle,
-}) => {
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ total }) => {
   const navigate = useNavigate();
+
+  const searchParams = useSearchParams();
+  const modeParam = searchParams[0].get("mode");
+  const mode: "draft" | "published" =
+    modeParam === "draft" || modeParam === "published"
+      ? modeParam
+      : "published";
+
+  const isDraftMode = mode === "draft";
 
   const onCreateEvent = () => {
     navigate("/create-event");
   };
+
+  const onModeToggle = () => {
+    if (mode === "draft") {
+      navigate("/?mode=published");
+    } else {
+      navigate("/?mode=draft");
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-xl mb-8 p-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">

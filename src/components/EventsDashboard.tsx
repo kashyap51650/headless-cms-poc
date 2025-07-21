@@ -10,12 +10,17 @@ import {
 } from "./dashboard";
 import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
+import { useSearchParams } from "react-router";
 
 export const EventsDashboard: React.FC = () => {
+  const serachParams = useSearchParams();
+  const mode = serachParams[0].get("mode") || "published";
+
+  const isDraftMode = mode === "draft";
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [isDraftMode, setIsDraftMode] = useState(false);
 
   const itemsPerPage = 12;
 
@@ -91,13 +96,6 @@ export const EventsDashboard: React.FC = () => {
     setCurrentPage(page);
   };
 
-  const handleModeToggle = () => {
-    setIsDraftMode(!isDraftMode);
-    setCurrentPage(1); // Reset to first page when switching modes
-    setSearchTerm(""); // Clear search when switching modes
-    setSelectedCategory(""); // Clear category filter when switching modes
-  };
-
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
@@ -118,11 +116,7 @@ export const EventsDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto">
-        <DashboardHeader
-          total={total}
-          isDraftMode={isDraftMode}
-          onModeToggle={handleModeToggle}
-        />
+        <DashboardHeader total={total} />
 
         <SearchAndFilters
           searchTerm={searchTerm}
