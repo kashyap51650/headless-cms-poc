@@ -64,7 +64,7 @@ export const PublishEvent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="p-4">
       <div className="max-w-3xl mx-auto">
         {/* Back Button */}
 

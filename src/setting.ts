@@ -1,5 +1,5 @@
 const globalSettings = {
-  renderStaticData: 0, // Enable static content loading
+  renderStaticData: 1, // Enable static content loading
 };
 
 export default globalSettings;
