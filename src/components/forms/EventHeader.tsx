@@ -11,7 +11,7 @@ export const EventHeader: React.FC<EventHeaderProps> = ({
   title = "",
 }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-xl mb-8 p-8">
+    <div className="bg-white sticky top-0 w-full mb-8 p-8 z-10">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 mb-2">

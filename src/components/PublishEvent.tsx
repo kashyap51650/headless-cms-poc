@@ -1,9 +1,7 @@
 import React from "react";
 import { useEventForm } from "../hooks/useEventForm";
 import type { Event } from "../types/event";
-import { Button } from "./ui/Button";
 import {
-  EventHeader,
   BasicInfoSection,
   BannerUploadSection,
   OrganizerSection,
@@ -64,69 +62,99 @@ export const PublishEvent: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Back Button */}
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Hero Header Section */}
+      <div className="bg-white border-b border-slate-200 shadow-sm">
+        <div className="px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={onBackButtonClick}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 transition-all duration-200 group"
+              >
+                <svg
+                  className="w-5 h-5 text-slate-600 group-hover:text-slate-800 transition-colors"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900 mb-1">
+                  {title ||
+                    (editingEvent
+                      ? `Edit ${editingEvent.title}`
+                      : "Create New Event")}
+                </h1>
+                <p className="text-slate-600">
+                  {editingEvent
+                    ? "Update your event details"
+                    : "Fill in the details to create your amazing event"}
+                </p>
+              </div>
+            </div>
 
-        <div className="mb-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBackButtonClick}
-            className="inline-flex items-center"
-          >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Dashboard
-          </Button>
+            {/* Status Indicator */}
+            <div className="flex items-center gap-3">
+              <div
+                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                  isPublished
+                    ? "bg-green-100 text-green-700 border border-green-200"
+                    : "bg-amber-100 text-amber-700 border border-amber-200"
+                }`}
+              >
+                {isPublished ? "Published Event" : "Draft Event"}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <EventHeader
-          isPublished={isPublished}
-          title={
-            title ||
-            (editingEvent ? `Edit ${editingEvent.title}` : "Create New Event")
-          }
-        />
-
+      {/* Main Content */}
+      <div className="px-6 py-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          <BasicInfoSection register={register} errors={errors} />
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Main Form */}
+            <div className="lg:col-span-2 space-y-6">
+              <BasicInfoSection register={register} errors={errors} />
+              <BannerUploadSection
+                bannerPreview={bannerPreview}
+                setBannerPreview={setBannerPreview}
+                onBannerChange={handleBannerChange}
+              />
+              <OrganizerSection register={register} errors={errors} />
+            </div>
 
-          <BannerUploadSection
-            bannerPreview={bannerPreview}
-            setBannerPreview={setBannerPreview}
-            onBannerChange={handleBannerChange}
-          />
+            {/* Right Column - Sidebar */}
+            <div className="space-y-6">
+              <CategoriesSection
+                selectedCategories={selectedCategories}
+                onCategoryToggle={handleCategoryToggle}
+                errors={errors}
+              />
+              <SpeakersSection
+                selectedSpeakers={selectedSpeakers}
+                onSpeakerToggle={handleSpeakerToggle}
+              />
+              <PublishSettingsSection
+                register={register}
+                isPublished={isPublished}
+              />
+            </div>
+          </div>
 
-          <OrganizerSection register={register} errors={errors} />
-          <CategoriesSection
-            selectedCategories={selectedCategories}
-            onCategoryToggle={handleCategoryToggle}
-            errors={errors}
-          />
-
-          <SpeakersSection
-            selectedSpeakers={selectedSpeakers}
-            onSpeakerToggle={handleSpeakerToggle}
-          />
-
-          <PublishSettingsSection
-            register={register}
-            isPublished={isPublished}
-          />
-
-          <FormActions saveDraft={!isPublished} isLoading={isLoading} />
+          {/* Bottom Action Section */}
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+            <FormActions saveDraft={!isPublished} isLoading={isLoading} />
+          </div>
         </form>
       </div>
     </div>
