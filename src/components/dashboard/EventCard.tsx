@@ -36,9 +36,9 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
     <div className="bg-white rounded-2xl shadow-xl group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative">
         <div className="h-48 bg-gradient-to-br from-secondary-500 to-secondary-700 rounded-t-xl relative overflow-hidden">
-          {event.banner && (
+          {(event.banner || event.bannerUrl) && (
             <img
-              src={event.banner}
+              src={event.banner ?? event.bannerUrl}
               alt={event.title}
               className="w-full h-full object-cover"
             />

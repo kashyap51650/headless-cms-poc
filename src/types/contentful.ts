@@ -39,6 +39,7 @@ export interface EventSkeleton extends EntrySkeletonType {
     date: string;
     description: string;
     banner?: Asset;
+    bannerURL?: string;
     isPublished: boolean;
     organizer?: AuthorSkeleton;
     categories?: CategorySkeleton[];

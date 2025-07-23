@@ -5,6 +5,7 @@ export interface Event {
   date: string;
   description: string;
   banner?: string;
+  bannerUrl?: string;
   isPublished: boolean;
   organizer: Organizer;
   categories: Category[];

@@ -17,7 +17,7 @@ export const useEvents = (options: UseEventsOptions = {}) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.eventsWithOptions(options),
+    queryKey: queryKeys.events,
     queryFn: () => EventService.getEvents(options),
     select: (data) => {
       return {

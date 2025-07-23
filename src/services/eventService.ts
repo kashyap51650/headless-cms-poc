@@ -14,6 +14,7 @@ const transformEventEntry = (entry: any): Event => {
     date: entry.fields.date || "",
     description: entry.fields.description || "",
     banner: entry.fields.banner?.fields?.file?.url || undefined,
+    bannerUrl: entry.fields.bannerURL || "",
     isPublished: Boolean(entry.fields.isPublished),
     organizer: {
       id: entry.fields.organizer?.sys?.id || "unknown",
