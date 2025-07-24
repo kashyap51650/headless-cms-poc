@@ -6,6 +6,12 @@ export { Input } from "./ui/Input";
 export { Select } from "./ui/Select";
 export { TextArea } from "./ui/TextArea";
 
+// Main Components
+export { Dashboard } from "./Dashboard";
+export { EventsDashboard } from "./EventsDashboard";
+export { PublishEvent } from "./PublishEvent";
+export { Analytics } from "./Analytics";
+
 // Form Sections
 export { BasicInfoSection } from "./forms/BasicInfoSection";
 export { BannerUploadSection } from "./forms/BannerUploadSection";

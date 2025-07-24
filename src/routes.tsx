@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router";
+import { Dashboard } from "./components/Dashboard";
 import { EventsDashboard } from "./components/EventsDashboard";
 import { PublishEvent } from "./components/PublishEvent";
 import { Analytics } from "./components/Analytics";
@@ -9,7 +10,7 @@ export const router = createBrowserRouter([
     path: "/",
     element: (
       <AppLayout>
-        <EventsDashboard />
+        <Dashboard />
       </AppLayout>
     ),
   },
