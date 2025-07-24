@@ -60,10 +60,8 @@ const NavItemComponent: React.FC<{ item: NavItem; isCollapsed: boolean }> = ({
   item,
   isCollapsed,
 }) => {
-  console.log({ item });
   const location = useLocation();
   const isActive = location.pathname === item.href;
-  console.log("isActive", isActive, item.href, location.pathname);
   return (
     <Link
       to={item.href}

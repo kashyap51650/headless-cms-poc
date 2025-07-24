@@ -1,11 +1,10 @@
 import { Card } from "./ui/Card";
 import { BarChart3 } from "lucide-react";
-import { useDraftEvents, useEvents } from "../hooks/useEvents";
+import { useDraftEvents } from "../hooks/useEvents";
 
 const EventStatus = () => {
   const { events } = useDraftEvents();
   const totalEvents = events.length;
-  console.log(events);
   const publishedEvents = events.filter((event) => event.isPublished).length;
   const draftEvents = totalEvents - publishedEvents;
   return (
