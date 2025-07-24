@@ -1,30 +1,23 @@
 import { Card } from "./ui/Card";
 import { BarChart3 } from "lucide-react";
-import { useEvents } from "../hooks/useEvents";
+import { useDraftEvents, useEvents } from "../hooks/useEvents";
 
 const EventStatus = () => {
-  const { events } = useEvents({ published: true });
+  const { events } = useDraftEvents();
   const totalEvents = events.length;
+  console.log(events);
   const publishedEvents = events.filter((event) => event.isPublished).length;
   const draftEvents = totalEvents - publishedEvents;
   return (
     <Card>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-slate-900">Event Status</h3>
+        <h3 className="text-lg font-semibold text-slate-900">
+          Draft Events Status
+        </h3>
         <BarChart3 className="w-5 h-5 text-slate-400" />
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span className="font-medium text-green-900">Published</span>
-          </div>
-          <span className="text-2xl font-bold text-green-700">
-            {publishedEvents}
-          </span>
-        </div>
-
         <div className="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-200">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
