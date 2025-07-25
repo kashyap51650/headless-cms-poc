@@ -23,16 +23,6 @@ export const FormActions: React.FC<FormActionsProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Save as Draft Button */}
-        <Button
-          type="button"
-          variant="outline"
-          className="border-slate-300 text-slate-700 hover:bg-slate-50"
-          icon={<FileText className="w-4 h-4" />}
-        >
-          Save as Draft
-        </Button>
-
         {/* Main Action Button */}
         <Button
           type="submit"

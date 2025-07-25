@@ -3,7 +3,7 @@ import { dummyEvents } from "../data";
 import type { EventFormData } from "../schemas/eventSchema";
 import globalSettings from "../setting";
 import type { EventEntry } from "../types/contentful";
-import type { Event } from "../types/event";
+import type { Event, MutationResponse } from "../types/event";
 
 // Helper function to transform Contentful entry to Event object
 const transformEventEntry = (entry: any): Event => {
@@ -224,11 +224,16 @@ export class EventService {
   /**
    * Create a new event (placeholder - requires Contentful Management API)
    */
-  static async createEvent(eventData: EventFormData) {
+  static async createEvent(
+    eventData: EventFormData
+  ): Promise<MutationResponse<EventFormData>> {
     if (globalSettings.renderStaticData) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Creating event in static mode:", eventData);
-      return eventData;
+      return {
+        data: eventData,
+        message: "Event created successfully",
+        error: false,
+      };
     }
 
     try {
@@ -277,6 +282,9 @@ export class EventService {
               },
             })),
           },
+          ...(eventData.bannerUrl && {
+            bannerURL: { "en-US": eventData.bannerUrl },
+          }),
           ...(assetId && {
             banner: {
               "en-US": {
@@ -292,25 +300,36 @@ export class EventService {
       };
 
       const entry = await environment.createEntry("event", data);
-      console.log("Created Event Entry:", entry);
 
       if (eventData.isPublished) {
-        const publishedEntry = await entry.publish();
-        console.log("Published Event Entry:", publishedEntry);
+        await entry.publish();
       }
-    } catch (error) {
+
+      return {
+        data: eventData,
+        message: "Event created successfully",
+        error: false,
+      };
+    } catch (error: any) {
       console.error("Error creating event:", error);
+      return {
+        message: error?.message || "Failed to create event",
+        error: true,
+      };
     }
   }
 
-  /**
-   * Update an event (placeholder - requires Contentful Management API)
-   */
-  static async updateEvent(id: string, eventData: any): Promise<Event> {
+  static async updateEvent(
+    id: string,
+    eventData: EventFormData
+  ): Promise<MutationResponse<EventFormData>> {
     if (globalSettings.renderStaticData) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Updating event:", eventData);
-      return eventData;
+      return {
+        data: eventData,
+        message: "Event updated successfully",
+      };
     }
 
     try {
@@ -320,7 +339,8 @@ export class EventService {
       const environment = await space.getEnvironment("master");
 
       const entry = await environment.getEntry(id);
-      console.log("Fetched Event Entry for Update:", entry);
+
+      console.log("Fetched Event Entry for Update", entry);
 
       // Update fields
       entry.fields.title["en-US"] = eventData.title;
@@ -354,6 +374,10 @@ export class EventService {
         })
       );
 
+      if (eventData.bannerUrl) {
+        entry.fields.bannerURL["en-US"] = eventData.bannerUrl;
+      }
+
       if (eventData.banner) {
         console.log("Uploading banner for event:", eventData.banner);
         const assetId = await EventService.uploadAsset(eventData.banner);
@@ -366,20 +390,22 @@ export class EventService {
         };
       }
 
-      console.log("Updated Event Entry Fields:", entry.fields);
-
       const updatedEntry = await entry.update();
 
       if (eventData.isPublished) {
         const publishedEntry = await updatedEntry.publish();
         console.log("Published Updated Event Entry:", publishedEntry);
-        return transformEventEntry(publishedEntry);
       }
 
-      return transformEventEntry(updatedEntry);
-    } catch (error) {
+      return {
+        data: eventData,
+        message: "Event updated successfully",
+      };
+    } catch (error: any) {
       console.error("Error updating event:", error);
-      return {} as Event;
+      return {
+        message: error?.message || "Failed to update event",
+      };
     }
   }
 

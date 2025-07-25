@@ -3,14 +3,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema, type EventFormData } from "../schemas/eventSchema";
 import { useCreateEvent, useUpdateEvent } from "./useEvents";
-import type { Category, Speaker } from "../types/event";
+import type { Category, MutationResponse, Speaker } from "../types/event";
 import { useCategories } from "./useCategories";
 import { useSpeakers } from "./useSpeakers";
 
 interface UseEventFormProps {
   initialData?: Partial<EventFormData & { id?: string }>;
-  onSuccess?: (data: any) => void;
-  onError?: (error: Error) => void;
+  onSuccess?: (data: MutationResponse<EventFormData>) => void;
+  onError?: (error: MutationResponse<EventFormData>) => void;
 }
 
 export const useEventForm = ({
@@ -57,6 +57,7 @@ export const useEventForm = ({
       organizer: initialData?.organizer,
       categories: selectedCategories.map((cat) => cat.id),
       speakers: selectedSpeakers.map((speaker) => speaker.id),
+      bannerUrl: initialData?.bannerUrl || "",
     },
   });
 
@@ -123,31 +124,26 @@ export const useEventForm = ({
 
   const onFormSubmit = async (data: EventFormData) => {
     if (!initialData?.id) {
-      console.log("Creating new event with data:", data);
       createEventMutation.mutate(
         { ...data, banner: bannerPreview },
         {
-          onSuccess: (createdEvent) => {
-            console.log("Event created:", createdEvent);
-            onSuccess?.(createdEvent);
+          onSuccess: (data) => {
+            onSuccess?.(data);
           },
           onError: (error) => {
-            console.error("Error creating event:", error);
             onError?.(error);
           },
         }
       );
     } else {
-      console.log("Updating existing event with data:", data);
       // If editing, update the event
       updateEventMutation.mutate(
         { id: initialData.id, data },
         {
-          onSuccess: (updatedEvent) => {
-            console.log("Event updated:", updatedEvent);
+          onSuccess: (data) => {
+            onSuccess?.(data);
           },
           onError: (error) => {
-            console.error("Error updating event:", error);
             onError?.(error);
           },
         }

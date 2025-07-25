@@ -29,11 +29,21 @@ export const PublishEvent: React.FC = () => {
         organizer: editingEvent.organizer.id,
         categories: editingEvent.categories.map((cat) => cat.id),
         speakers: editingEvent.speakers.map((speaker) => speaker.id),
-        isPublished: false, // Default to false for editing
+        isPublished: false, // Default to false for editingw
         banner: editingEvent.banner,
+        bannerUrl: editingEvent.bannerUrl,
         id: editingEvent?.id,
       }
     : undefined;
+
+  const onSuccess = () => {
+    console.log("Event created/updated successfully");
+    navigate("/draftEvents");
+  };
+
+  const onError = () => {
+    console.error("Error creating/updating event:");
+  };
 
   const {
     form,
@@ -46,7 +56,7 @@ export const PublishEvent: React.FC = () => {
     handleSpeakerToggle,
     isLoading,
     onSubmit,
-  } = useEventForm({ initialData: formInitialData });
+  } = useEventForm({ initialData: formInitialData, onSuccess, onError });
 
   const {
     register,
@@ -126,6 +136,7 @@ export const PublishEvent: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               <BasicInfoSection register={register} errors={errors} />
               <BannerUploadSection
+                register={register}
                 bannerPreview={bannerPreview}
                 setBannerPreview={setBannerPreview}
                 onBannerChange={handleBannerChange}

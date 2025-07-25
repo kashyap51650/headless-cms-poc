@@ -46,3 +46,9 @@ export interface EventFormData {
   categories: string[];
   speakers: string[];
 }
+
+export interface MutationResponse<T = unknown> {
+  data?: T;
+  error?: boolean;
+  message: string;
+}

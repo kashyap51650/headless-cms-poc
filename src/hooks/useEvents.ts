@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EventService } from "../services/eventService";
 import { queryKeys } from "../lib/queryKeys";
 import { queryClient } from "../lib/queryClient";
+import type { MutationResponse } from "../types/event";
+import type { EventFormData } from "../schemas/eventSchema";
 
 interface UseEventsOptions {
   published?: boolean;
@@ -114,8 +116,8 @@ export const useCreateEvent = () => {
   return useMutation({
     mutationFn: EventService.createEvent,
     onSuccess: () => {
-      // Invalidate and refetch events list
       queryClient.invalidateQueries({ queryKey: queryKeys.events });
+      queryClient.invalidateQueries({ queryKey: queryKeys.previewEvents });
     },
   });
 };
@@ -124,16 +126,11 @@ export const useUpdateEvent = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       EventService.updateEvent(id, data),
-    onSuccess: (updatedEvent) => {
-      // Update the specific event in cache
-      if (updatedEvent?.id) {
-        queryClient.setQueryData(
-          queryKeys.event(updatedEvent.id),
-          updatedEvent
-        );
+    onSuccess: (updatedEvent: MutationResponse<EventFormData>) => {
+      if (updatedEvent.data?.isPublished) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.events });
+        queryClient.invalidateQueries({ queryKey: queryKeys.previewEvents });
       }
-      // Invalidate events list to refetch
-      queryClient.invalidateQueries({ queryKey: queryKeys.events });
     },
   });
 };

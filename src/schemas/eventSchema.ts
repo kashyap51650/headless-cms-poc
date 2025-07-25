@@ -15,6 +15,7 @@ export const eventSchema = z.object({
   date: z.string().min(1, "Date is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   banner: z.any().optional(),
+  bannerUrl: z.string().optional(),
   isPublished: z.boolean(),
   organizer: z.string().min(1, "Organizer is required"),
   categories: z.array(z.string()).min(1, "At least one category is required"),

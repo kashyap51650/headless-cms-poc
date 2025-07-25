@@ -1,13 +1,19 @@
 import React from "react";
 import { Upload } from "lucide-react";
+import { Input } from "../ui/Input";
+import type { UseFormRegister } from "react-hook-form";
+import type { EventFormData } from "../../schemas/eventSchema";
+import { FormField } from "../ui/FormField";
 
 interface BannerUploadSectionProps {
+  register: UseFormRegister<EventFormData>;
   bannerPreview: string | null;
   setBannerPreview: (preview: string | null) => void;
   onBannerChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
+  register,
   bannerPreview,
   setBannerPreview,
   onBannerChange,
@@ -36,6 +42,23 @@ export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
         </p>
       </div>
       <div className="p-6">
+        <FormField
+          label="Banner URL"
+          className="lg:col-span-2"
+          htmlFor="bannerUrl"
+          required
+        >
+          <Input
+            {...register("bannerUrl")}
+            id="bannerUrl"
+            type="text"
+            placeholder="Enter banner URL"
+            className="mb-6"
+          />
+        </FormField>
+        <div className="text-center mb-6">
+          <strong>OR</strong>
+        </div>
         <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-primary-400 transition-colors">
           {bannerPreview ? (
             <div className="relative">
