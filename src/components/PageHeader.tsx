@@ -1,4 +1,4 @@
-const PageHeader: React.FC<{ title: string; description: string }> = ({
+const PageHeader: React.FC<{ title: string; description?: string }> = ({
   title,
   description,
 }) => {
