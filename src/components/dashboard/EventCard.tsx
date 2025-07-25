@@ -125,22 +125,13 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
             )}
           </div>
 
-          <div className="flex space-x-2">
-            <Button
-              onClick={() => {}}
-              variant="outline"
-              size="sm"
-              icon={<Eye className="w-4 h-4" />}
-              className="flex-1"
-            >
-              View
-            </Button>
+          <div className="flex gap-2 justify-between">
             <Button
               onClick={onEditButtonClick}
               variant="outline"
               size="sm"
               icon={<Edit className="w-4 h-4" />}
-              className="flex-1"
+              className="w-full"
             >
               Edit
             </Button>
@@ -149,7 +140,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
               variant="outline"
               size="sm"
               icon={<Trash2 className="w-4 h-4" />}
-              className="text-red-600 border-red-200 hover:bg-red-50"
+              className="text-red-600 border-red-200 hover:bg-red-50 w-full"
             >
               Delete
             </Button>
