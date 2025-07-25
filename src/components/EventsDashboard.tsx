@@ -7,6 +7,7 @@ import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
 import { useLocation } from "react-router";
 import { Plus } from "lucide-react";
+import PageHeader from "./PageHeader";
 
 export const EventsDashboard: React.FC = () => {
   const { pathname } = useLocation();
@@ -127,7 +128,14 @@ export const EventsDashboard: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
-        {/* <DashboardHeader total={total} /> */}
+        <PageHeader
+          title={isDraftMode ? "Draft Events" : "Published Events"}
+          description={
+            isDraftMode
+              ? "Let's Finish your draft events and publish it to make visible for every users"
+              : "Here are your published events. You can edit or delete them."
+          }
+        />
 
         {/* Search and Filters Section */}
         <div className="mb-8">
