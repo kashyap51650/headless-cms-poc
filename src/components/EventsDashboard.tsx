@@ -30,12 +30,11 @@ export const EventsDashboard: React.FC = () => {
   const draftEventsQuery = useDraftEvents();
 
   // Choose the appropriate data based on mode
-  const { events, loading, error, total } = isDraftMode
+  const { events, loading, error } = isDraftMode
     ? {
         events: draftEventsQuery.events,
         loading: draftEventsQuery.loading,
         error: draftEventsQuery.error,
-        total: draftEventsQuery.events.length,
       }
     : publishedEventsQuery;
 

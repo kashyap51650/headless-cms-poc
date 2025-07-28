@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router";
 import {
   Calendar,
   CalendarPlus,
-  BarChart3,
   ChevronLeft,
   ChevronRight,
   Home,

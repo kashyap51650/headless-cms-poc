@@ -1,5 +1,5 @@
 import React from "react";
-import { Save, Send, FileText } from "lucide-react";
+import { Save, Send } from "lucide-react";
 import { Button } from "../ui/Button";
 
 interface FormActionsProps {

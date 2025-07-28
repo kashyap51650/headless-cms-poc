@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Eye, Edit, Trash2, Users } from "lucide-react";
+import { Calendar, Edit, Trash2, Users } from "lucide-react";
 import { Button } from "../ui/Button";
 import type { Event } from "../../types/event";
 import { useNavigate } from "react-router";
