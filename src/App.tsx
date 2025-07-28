@@ -1,14 +1,8 @@
-import "./App.css";
+import { RouterProvider } from "react-router";
+import { router } from "./routes";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="text-center p-4 bg-blue-500 text-white">
-        <h1>Welcome to the Event Management App</h1>
-        <p>This is a simple React TypeScript application.</p>
-      </header>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
