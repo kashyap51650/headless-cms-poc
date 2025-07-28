@@ -6,6 +6,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  Users,
+  UserCheck,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -44,6 +46,18 @@ const mainNavItems: NavItem[] = [
     label: "Published Events",
     icon: <Calendar className="w-5 h-5" />,
     href: "/publishedEvents",
+  },
+  {
+    id: "speakers",
+    label: "Speakers",
+    icon: <Users className="w-5 h-5" />,
+    href: "/speakers",
+  },
+  {
+    id: "organizers",
+    label: "Organizers",
+    icon: <UserCheck className="w-5 h-5" />,
+    href: "/organizers",
   },
 ];
 

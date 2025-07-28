@@ -11,6 +11,8 @@ export { Dashboard } from "./Dashboard";
 export { EventsDashboard } from "./EventsDashboard";
 export { PublishEvent } from "./PublishEvent";
 export { Analytics } from "./Analytics";
+export { SpeakersManagement } from "./SpeakersManagement";
+export { OrganizersManagement } from "./OrganizersManagement";
 
 // Form Sections
 export { BasicInfoSection } from "./forms/BasicInfoSection";

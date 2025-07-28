@@ -18,7 +18,7 @@ export const getAuthors = async () => {
       id: item.sys.id,
       name: item.fields.name,
       email: item.fields.email,
-      avatar: item.fields.image,
+      avatar: item.fields.avtarUrl,
     }));
   } catch (error) {
     console.error("Error fetching authors:", error);

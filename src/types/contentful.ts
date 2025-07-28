@@ -6,7 +6,6 @@ export interface CategorySkeleton extends EntrySkeletonType {
   fields: {
     title: string;
     slug: string;
-    color?: string;
   };
 }
 
@@ -17,6 +16,7 @@ export interface SpeakerSkeleton extends EntrySkeletonType {
     name: string;
     bio?: string;
     avatar?: Asset;
+    avtarURL?: string;
   };
 }
 
@@ -27,6 +27,7 @@ export interface AuthorSkeleton extends EntrySkeletonType {
     name: string;
     email?: string;
     image?: Asset;
+    avtarUrl?: string;
   };
 }
 
