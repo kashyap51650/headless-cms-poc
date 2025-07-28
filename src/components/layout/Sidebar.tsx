@@ -46,13 +46,6 @@ const mainNavItems: NavItem[] = [
     icon: <Calendar className="w-5 h-5" />,
     href: "/publishedEvents",
   },
-
-  {
-    id: "analytics",
-    label: "Analytics",
-    icon: <BarChart3 className="w-5 h-5" />,
-    href: "/analytics",
-  },
 ];
 
 // NavItem Component - moved outside to avoid re-creation

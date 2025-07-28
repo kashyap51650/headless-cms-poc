@@ -24,7 +24,7 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   onReset,
 }) => {
   return (
-    <div className="sticky top-0 z-10 w-full">
+    <div className="shadow p-4 rounded-2xl ">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />

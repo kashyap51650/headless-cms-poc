@@ -39,7 +39,6 @@ export const Dashboard: React.FC = () => {
                 title="Published Events"
                 value={eventsLoading ? "..." : totalEvents}
                 icon={<Calendar className="w-6 h-6 text-white" />}
-                change="+12%"
                 changeType="positive"
                 gradient="from-primary-500 to-primary-600"
               />
@@ -48,7 +47,6 @@ export const Dashboard: React.FC = () => {
                 title="Categories"
                 value={categoriesLoading ? "..." : totalCategories}
                 icon={<Tag className="w-6 h-6 text-white" />}
-                change="+3"
                 changeType="positive"
                 gradient="from-orange-500 to-red-500"
               />
@@ -57,7 +55,6 @@ export const Dashboard: React.FC = () => {
                 title="Speakers"
                 value={speakersLoading ? "..." : totalSpeakers}
                 icon={<Users className="w-6 h-6 text-white" />}
-                change="+8%"
                 changeType="positive"
                 gradient="from-green-500 to-emerald-500"
               />
@@ -66,7 +63,6 @@ export const Dashboard: React.FC = () => {
                 title="Organizers"
                 value={authorsLoading ? "..." : totalOrganizers}
                 icon={<UserCheck className="w-6 h-6 text-white" />}
-                change="+2"
                 changeType="positive"
                 gradient="from-purple-500 to-indigo-500"
               />
