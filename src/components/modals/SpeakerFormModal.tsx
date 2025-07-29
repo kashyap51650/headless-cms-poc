@@ -1,35 +1,41 @@
-import React, { useEffect } from "react";
-import { X, User } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { TextArea } from "../ui/TextArea";
-import { FormField } from "../ui/FormField";
+import { User, X } from "lucide-react";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import {
   speakerSchema,
   type SpeakerFormData,
 } from "../../schemas/speakerSchema";
+import { Button } from "../ui/Button";
+import { FormField } from "../ui/FormField";
+import { Input } from "../ui/Input";
+import { TextArea } from "../ui/TextArea";
+import type { Speaker } from "../../types/event";
+import { useCreateSpeaker, useUpdateSpeaker } from "../../hooks/useSpeakers";
 
 interface SpeakerFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  speaker?: any;
-  onSave: (data: any) => void;
+  speaker?: Speaker;
 }
 
 export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
   isOpen,
   onClose,
   speaker,
-  onSave,
 }) => {
+  const { mutate, error, isPending } = useCreateSpeaker();
+  const {
+    mutate: updateSpeaker,
+    error: updateError,
+    isPending: isUpdating,
+  } = useUpdateSpeaker();
   const isEditing = !!speaker;
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<SpeakerFormData>({
     resolver: zodResolver(speakerSchema),
@@ -37,6 +43,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
       ? {
           name: speaker.name,
           bio: speaker.bio || "",
+          avtarUrl: speaker.avatar || "",
         }
       : undefined,
   });
@@ -46,11 +53,13 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
       reset({
         name: speaker.name || "",
         bio: speaker.bio || "",
+        avtarUrl: speaker.avatar || "",
       });
     } else {
       reset({
         name: "",
         bio: "",
+        avtarUrl: "",
       });
     }
   }, [speaker, reset]);
@@ -60,11 +69,25 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
       name: data.name,
       bio: data.bio,
       id: isEditing ? speaker.id : undefined,
+      avtarUrl: data.avtarUrl,
     };
 
-    onSave(speakerData);
-    reset();
-    onClose();
+    if (isEditing) {
+      updateSpeaker(
+        { speakerId: speaker.id, speakerData },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        }
+      );
+    } else {
+      mutate(data, {
+        onSuccess: () => {
+          onClose();
+        },
+      });
+    }
   };
 
   if (!isOpen) return null;
@@ -120,7 +143,31 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
                 error={!!errors.bio}
               />
             </FormField>
+
+            <FormField
+              label="Avatar URL"
+              error={errors.avtarUrl?.message}
+              htmlFor="avatar"
+            >
+              <Input
+                {...register("avtarUrl")}
+                id="avatar"
+                type="url"
+                placeholder="https://example.com/avatar.jpg"
+                error={!!errors.avtarUrl}
+              />
+            </FormField>
           </div>
+
+          {(error || updateError) && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-error-50 to-error-100 rounded-xl border border-error-200">
+              <p className="text-sm text-error-700">
+                {error?.message ||
+                  updateError?.message ||
+                  "An error occurred while saving the speaker."}
+              </p>
+            </div>
+          )}
 
           {/* Form Actions */}
           <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
@@ -128,17 +175,17 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isPending || isUpdating}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isPending || isUpdating}
               className="bg-gradient-to-r from-primary-500 to-primary-600"
             >
               {(() => {
-                if (isSubmitting) return "Saving...";
+                if (isPending || isUpdating) return "Saving...";
                 if (isEditing) return "Update Speaker";
                 return "Add Speaker";
               })()}

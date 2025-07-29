@@ -52,6 +52,12 @@ export const SpeakerCard: React.FC<SpeakerCardProps> = ({
           <h3 className="font-bold text-lg text-slate-900 mb-1 truncate">
             {speaker.name}
           </h3>
+          {/* Bio */}
+          {speaker.bio && (
+            <p className="text-slate-600 text-sm mb-4 line-clamp-3">
+              {speaker.bio}
+            </p>
+          )}
         </div>
 
         {/* Action Buttons */}
@@ -72,13 +78,6 @@ export const SpeakerCard: React.FC<SpeakerCardProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Bio */}
-      {speaker.bio && (
-        <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-          {speaker.bio}
-        </p>
-      )}
 
       {/* Footer with ID */}
       <div className="flex items-center justify-between pt-4 border-t border-slate-100">

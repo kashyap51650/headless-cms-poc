@@ -1,6 +1,6 @@
 import { Filter, Plus, Search, UserPlus, Users } from "lucide-react";
 import React, { useState } from "react";
-import { useSpeakers } from "../hooks/useSpeakers";
+import { useDeleteSpeaker, useSpeakers } from "../hooks/useSpeakers";
 import { SpeakerFormModal } from "./modals/SpeakerFormModal";
 import PageHeader from "./PageHeader";
 import { SpeakerCard } from "./SpeakerCard";
@@ -12,6 +12,7 @@ interface SpeakersManagementProps {}
 
 export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
   const { speakers, loading } = useSpeakers();
+  const { mutate } = useDeleteSpeaker();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSpeaker, setEditingSpeaker] = useState<any>(null);
@@ -28,20 +29,12 @@ export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this speaker?")) {
-      console.log("Delete speaker:", id);
-    }
+    mutate(id);
   };
 
   const handleCreateNew = () => {
     setEditingSpeaker(null);
     setShowCreateModal(true);
-  };
-
-  const handleSaveSpeaker = (data: any) => {
-    console.log("Save speaker:", data);
-    setShowCreateModal(false);
-    setEditingSpeaker(null);
   };
 
   const handleCloseModal = () => {
@@ -152,7 +145,6 @@ export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
         isOpen={showCreateModal}
         onClose={handleCloseModal}
         speaker={editingSpeaker}
-        onSave={handleSaveSpeaker}
       />
     </div>
   );

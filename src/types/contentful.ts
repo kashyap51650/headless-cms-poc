@@ -16,7 +16,7 @@ export interface SpeakerSkeleton extends EntrySkeletonType {
     name: string;
     bio?: string;
     avatar?: Asset;
-    avtarURL?: string;
+    avtarUrl?: string;
   };
 }
 
@@ -58,3 +58,19 @@ export type EventEntry = EventSkeleton;
 export type CategoryEntry = CategorySkeleton;
 export type SpeakerEntry = SpeakerSkeleton;
 export type AuthorEntry = AuthorSkeleton;
+
+export interface ContentfulError {
+  sys: {
+    type: "Error";
+    id: string;
+  };
+  message: string;
+  details?: {
+    errors?: {
+      name: string;
+      path?: string[];
+      details?: string;
+    }[];
+  };
+  requestId?: string;
+}
