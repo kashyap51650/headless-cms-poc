@@ -6,7 +6,6 @@ export interface CategorySkeleton extends EntrySkeletonType {
   fields: {
     title: string;
     slug: string;
-    color?: string;
   };
 }
 
@@ -17,6 +16,7 @@ export interface SpeakerSkeleton extends EntrySkeletonType {
     name: string;
     bio?: string;
     avatar?: Asset;
+    avtarUrl?: string;
   };
 }
 
@@ -27,6 +27,7 @@ export interface AuthorSkeleton extends EntrySkeletonType {
     name: string;
     email?: string;
     image?: Asset;
+    avtarUrl?: string;
   };
 }
 
@@ -57,3 +58,19 @@ export type EventEntry = EventSkeleton;
 export type CategoryEntry = CategorySkeleton;
 export type SpeakerEntry = SpeakerSkeleton;
 export type AuthorEntry = AuthorSkeleton;
+
+export interface ContentfulError {
+  sys: {
+    type: "Error";
+    id: string;
+  };
+  message: string;
+  details?: {
+    errors?: {
+      name: string;
+      path?: string[];
+      details?: string;
+    }[];
+  };
+  requestId?: string;
+}

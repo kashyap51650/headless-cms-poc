@@ -2,6 +2,8 @@ import { createBrowserRouter } from "react-router";
 import { Dashboard } from "./components/Dashboard";
 import { EventsDashboard } from "./components/EventsDashboard";
 import { PublishEvent } from "./components/PublishEvent";
+import { SpeakersManagement } from "./components/SpeakersManagement";
+import { OrganizersManagement } from "./components/OrganizersManagement";
 import { AppLayout } from "./components/layout";
 
 export const router = createBrowserRouter([
@@ -50,6 +52,22 @@ export const router = createBrowserRouter([
     element: (
       <AppLayout>
         <PublishEvent />
+      </AppLayout>
+    ),
+  },
+  {
+    path: "/speakers",
+    element: (
+      <AppLayout>
+        <SpeakersManagement />
+      </AppLayout>
+    ),
+  },
+  {
+    path: "/organizers",
+    element: (
+      <AppLayout>
+        <OrganizersManagement />
       </AppLayout>
     ),
   },

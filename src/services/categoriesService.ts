@@ -57,7 +57,6 @@ export class CategoriesService {
         id: entry.sys.id,
         title: entry.fields.title,
         slug: entry.fields.slug,
-        color: entry.fields.color,
       };
     } catch (error) {
       console.error(`Error fetching category ${id} from Contentful:`, error);

@@ -25,7 +25,6 @@ export interface Category {
   id: string;
   title: string;
   slug: string;
-  color?: string;
 }
 
 export interface Speaker {
