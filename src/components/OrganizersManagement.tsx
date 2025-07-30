@@ -1,6 +1,6 @@
 import { Filter, Plus, Search, UserCheck, UserPlus } from "lucide-react";
 import React, { useState } from "react";
-import { useAuthors } from "../hooks/useAuthors";
+import { useAuthors, useDeleteAuthor } from "../hooks/useAuthors";
 import { useEvents } from "../hooks/useEvents";
 import { OrganizerFormModal } from "./modals/OrganizerFormModal";
 import PageHeader from "./PageHeader";
@@ -12,7 +12,8 @@ import { OrganizerCard } from "./OrganizerCard";
 interface OrganizersManagementProps {}
 
 export const OrganizersManagement: React.FC<OrganizersManagementProps> = () => {
-  const { authors, loading } = useAuthors();
+  const { authors, loading, isFetching } = useAuthors();
+  const { mutate } = useDeleteAuthor();
   const { events } = useEvents();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -28,37 +29,18 @@ export const OrganizersManagement: React.FC<OrganizersManagementProps> = () => {
     return events.filter((event) => event.organizer.id === organizerId).length;
   };
 
-  const totalEvents = authors.reduce((sum, organizer) => {
-    return sum + getEventsCount(organizer.id);
-  }, 0);
-
   const handleEdit = (organizer: any) => {
     setEditingOrganizer(organizer);
     setShowCreateModal(true);
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this organizer?")) {
-      console.log("Delete organizer:", id);
-      // TODO: Implement actual delete functionality
-    }
-  };
-
-  const handleView = (organizer: any) => {
-    // For now, just edit the organizer
-    handleEdit(organizer);
+    mutate(id);
   };
 
   const handleCreateNew = () => {
     setEditingOrganizer(null);
     setShowCreateModal(true);
-  };
-
-  const handleSaveOrganizer = (data: any) => {
-    console.log("Save organizer:", data);
-    // TODO: Implement actual save functionality
-    setShowCreateModal(false);
-    setEditingOrganizer(null);
   };
 
   const handleCloseModal = () => {
@@ -103,7 +85,7 @@ export const OrganizersManagement: React.FC<OrganizersManagementProps> = () => {
         </Card>
 
         {/* Organizers Grid */}
-        {loading ? (
+        {loading || isFetching ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }, (_, i) => (
               <div
@@ -133,7 +115,6 @@ export const OrganizersManagement: React.FC<OrganizersManagementProps> = () => {
                     eventsCount={getEventsCount(organizer.id)}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
-                    onView={handleView}
                   />
                 ))}
               </div>
@@ -168,7 +149,6 @@ export const OrganizersManagement: React.FC<OrganizersManagementProps> = () => {
         isOpen={showCreateModal}
         onClose={handleCloseModal}
         organizer={editingOrganizer}
-        onSave={handleSaveOrganizer}
       />
     </div>
   );

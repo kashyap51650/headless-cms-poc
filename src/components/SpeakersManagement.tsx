@@ -11,7 +11,7 @@ import { Input } from "./ui/Input";
 interface SpeakersManagementProps {}
 
 export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
-  const { speakers, loading } = useSpeakers();
+  const { speakers, loading, isFetching } = useSpeakers();
   const { mutate } = useDeleteSpeaker();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -79,7 +79,7 @@ export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
         </Card>
 
         {/* Speakers Grid */}
-        {loading ? (
+        {loading || isFetching ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }, (_, i) => (
               <div

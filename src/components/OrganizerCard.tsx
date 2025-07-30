@@ -1,4 +1,4 @@
-import { Calendar, Crown, Edit2, Eye, Mail, Trash2 } from "lucide-react";
+import { Calendar, Crown, Edit2, Mail, Trash2 } from "lucide-react";
 import React from "react";
 import type { Organizer } from "../types/event";
 
@@ -7,7 +7,6 @@ interface OrganizerCardProps {
   eventsCount: number;
   onEdit: (organizer: Organizer) => void;
   onDelete: (id: string) => void;
-  onView: (organizer: any) => void;
 }
 
 export const OrganizerCard: React.FC<OrganizerCardProps> = ({
@@ -15,7 +14,6 @@ export const OrganizerCard: React.FC<OrganizerCardProps> = ({
   eventsCount,
   onEdit,
   onDelete,
-  onView,
 }) => {
   const getInitials = (name: string) => {
     return name
@@ -25,7 +23,7 @@ export const OrganizerCard: React.FC<OrganizerCardProps> = ({
       .toUpperCase()
       .slice(0, 2);
   };
-  console.table(organizer);
+
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
       {/* Organizer Avatar & Basic Info */}
@@ -66,13 +64,6 @@ export const OrganizerCard: React.FC<OrganizerCardProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => onView(organizer)}
-            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-colors"
-            title="View Details"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
           <button
             onClick={() => onEdit(organizer)}
             className="p-2 rounded-lg bg-primary-100 hover:bg-primary-200 text-primary-600 hover:text-primary-800 transition-colors"

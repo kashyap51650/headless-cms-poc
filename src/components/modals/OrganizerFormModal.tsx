@@ -1,39 +1,41 @@
 import React, { useEffect } from "react";
-import { X, UserCheck } from "lucide-react";
-import { useForm } from "react-hook-form";
+import ReactDOM from "react-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { UserCheck, X } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useCreateAuthor, useUpdateAuthor } from "../../hooks/useAuthors";
+import {
+  organizerSchema,
+  type OrganizerFormData,
+} from "../../schemas/organizerSchema";
 import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
 import { FormField } from "../ui/FormField";
-
-const organizerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().optional(),
-  avatar: z.string().optional(),
-});
-
-type OrganizerFormData = z.infer<typeof organizerSchema>;
+import { Input } from "../ui/Input";
+import type { Organizer } from "../../types/event";
 
 interface OrganizerFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  organizer?: any;
-  onSave: (data: any) => void;
+  organizer?: Organizer;
 }
 
 export const OrganizerFormModal: React.FC<OrganizerFormModalProps> = ({
   isOpen,
   onClose,
   organizer,
-  onSave,
 }) => {
+  const { mutate, error, isPending } = useCreateAuthor();
+  const {
+    mutate: updateOrganizer,
+    error: updateError,
+    isPending: isUpdating,
+  } = useUpdateAuthor();
   const isEditing = !!organizer;
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<OrganizerFormData>({
     resolver: zodResolver(organizerSchema),
@@ -62,19 +64,38 @@ export const OrganizerFormModal: React.FC<OrganizerFormModalProps> = ({
     }
   }, [organizer, reset]);
 
-  const onSubmit = (data: OrganizerFormData) => {
-    onSave({
-      ...data,
-      id: isEditing ? organizer.id : undefined,
-    });
-    reset();
-    onClose();
+  const onSubmit = async (data: OrganizerFormData) => {
+    if (isEditing) {
+      updateOrganizer(
+        {
+          authorId: organizer.id,
+          authorData: {
+            name: data.name,
+            email: data.email,
+            avatar: data.avatar,
+          },
+        },
+        {
+          onSuccess: () => {
+            reset();
+            onClose();
+          },
+        }
+      );
+    } else {
+      mutate(data, {
+        onSuccess: () => {
+          reset();
+          onClose();
+        },
+      });
+    }
   };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 ">
+  const modalContent = (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-4 rounded-t-2xl">
@@ -94,7 +115,6 @@ export const OrganizerFormModal: React.FC<OrganizerFormModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-          {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
               <UserCheck className="w-5 h-5 text-primary-600" />
@@ -119,6 +139,7 @@ export const OrganizerFormModal: React.FC<OrganizerFormModalProps> = ({
               label="Email"
               error={errors.email?.message}
               htmlFor="email"
+              required
             >
               <Input
                 {...register("email")}
@@ -144,23 +165,32 @@ export const OrganizerFormModal: React.FC<OrganizerFormModalProps> = ({
             </FormField>
           </div>
 
-          {/* Form Actions */}
+          {(error || updateError) && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-error-50 to-error-100 rounded-xl border border-error-200">
+              <p className="text-sm text-error-700">
+                {error?.message ||
+                  updateError?.message ||
+                  "An error occurred while saving the speaker."}
+              </p>
+            </div>
+          )}
+
           <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isPending || isUpdating}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isPending || isUpdating}
               className="bg-gradient-to-r from-primary-500 to-primary-600"
             >
               {(() => {
-                if (isSubmitting) return "Saving...";
+                if (isPending || isUpdating) return "Saving...";
                 if (isEditing) return "Update Organizer";
                 return "Add Organizer";
               })()}
@@ -169,5 +199,10 @@ export const OrganizerFormModal: React.FC<OrganizerFormModalProps> = ({
         </form>
       </div>
     </div>
+  );
+
+  return ReactDOM.createPortal(
+    modalContent,
+    document.getElementById("modal-root")!
   );
 };

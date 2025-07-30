@@ -15,6 +15,7 @@ export const useSpeakers = () => {
     isLoading: loading,
     error,
     refetch,
+    isFetching,
   } = useQuery({
     queryKey: queryKeys.speakers,
     queryFn: getSpeakers,
@@ -25,13 +26,14 @@ export const useSpeakers = () => {
     loading,
     error: error?.message ?? null,
     refetch,
+    isFetching,
   };
 };
 
 export const useCreateSpeaker = () => {
   return useMutation({
     mutationFn: async (speakerData: SpeakerFormData) => addSpeaker(speakerData),
-    onSuccess: () => {
+    onSettled: () => {
       // Optionally, you can refetch speakers after adding a new one
       queryClient.invalidateQueries({ queryKey: queryKeys.speakers });
     },
@@ -47,9 +49,9 @@ export const useUpdateSpeaker = () => {
       speakerId: string;
       speakerData: SpeakerFormData;
     }) => updateSpeaker(speakerId, speakerData),
-    onSuccess: () => {
+    onSettled: () => {
       // Optionally, you can refetch speakers after updating one
-      queryClient.refetchQueries({ queryKey: queryKeys.speakers });
+      queryClient.invalidateQueries({ queryKey: queryKeys.speakers });
     },
   });
 };
@@ -57,8 +59,8 @@ export const useUpdateSpeaker = () => {
 export const useDeleteSpeaker = () => {
   return useMutation({
     mutationFn: (speakerId: string) => deleteSpeaker(speakerId),
-    onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: queryKeys.speakers });
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.speakers });
     },
   });
 };
