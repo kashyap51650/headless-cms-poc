@@ -88,12 +88,6 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                     className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
                   />
                   <div className="ml-3 flex items-center">
-                    {category.color && (
-                      <div
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{ backgroundColor: category.color }}
-                      />
-                    )}
                     <span className="text-slate-700">{category.title}</span>
                   </div>
                 </label>
