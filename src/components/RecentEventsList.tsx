@@ -72,6 +72,7 @@ const RecentEventCard: React.FC<RecentEventProps> = ({ event }) => {
 };
 
 const RecentEventsList = () => {
+  const navigate = useNavigate();
   const { events, loading: eventsLoading } = useDraftEvents();
   const sortedEvents = [...events].sort(
     (a, b) =>
@@ -90,7 +91,7 @@ const RecentEventsList = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => (window.location.href = "/")}
+            onClick={() => navigate("/draftEvents")}
           >
             <Eye className="w-4 h-4 mr-2" />
             View All

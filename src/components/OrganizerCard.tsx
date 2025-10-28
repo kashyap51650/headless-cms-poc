@@ -1,6 +1,7 @@
 import { Calendar, Crown, Edit2, Mail, Trash2 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import type { Organizer } from "../types/event";
+import { ConfirmationModal } from "./modals/ConfirmationModal";
 
 interface OrganizerCardProps {
   organizer: Organizer;
@@ -15,6 +16,9 @@ export const OrganizerCard: React.FC<OrganizerCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -22,6 +26,26 @@ export const OrganizerCard: React.FC<OrganizerCardProps> = ({
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    try {
+      setIsDeleting(true);
+      onDelete(organizer.id);
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Error deleting organizer:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
   };
 
   return (
@@ -72,7 +96,7 @@ export const OrganizerCard: React.FC<OrganizerCardProps> = ({
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(organizer.id)}
+            onClick={handleDeleteClick}
             className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-800 transition-colors"
             title="Delete Organizer"
           >
@@ -108,6 +132,19 @@ export const OrganizerCard: React.FC<OrganizerCardProps> = ({
           </a>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Organizer"
+        message={`Are you sure you want to delete "${organizer.name}"? This action cannot be undone and will affect all events organized by this person.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

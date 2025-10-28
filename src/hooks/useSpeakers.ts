@@ -16,9 +16,14 @@ export const useSpeakers = () => {
     error,
     refetch,
     isFetching,
+    dataUpdatedAt,
+    isStale,
   } = useQuery({
     queryKey: queryKeys.speakers,
     queryFn: getSpeakers,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Data is immediately stale
   });
 
   return {
@@ -32,10 +37,30 @@ export const useSpeakers = () => {
 
 export const useCreateSpeaker = () => {
   return useMutation({
-    mutationFn: async (speakerData: SpeakerFormData) => addSpeaker(speakerData),
-    onSettled: () => {
-      // Optionally, you can refetch speakers after adding a new one
-      queryClient.invalidateQueries({ queryKey: queryKeys.speakers });
+    mutationFn: async (speakerData: SpeakerFormData) => {
+      const result = await addSpeaker(speakerData);
+      console.log("✅ useCreateSpeaker: Mutation completed, result:", result);
+
+      // Add a small delay to allow Contentful to process the publish
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return result;
+    },
+    onSuccess: async (data, variables) => {
+      // Invalidate and refetch immediately
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.speakers,
+        exact: true,
+      });
+
+      // Force a refetch to ensure fresh data
+      await queryClient.refetchQueries({
+        queryKey: queryKeys.speakers,
+        exact: true,
+      });
+    },
+    onError: (error) => {
+      console.error("❌ useCreateSpeaker: Error creating speaker:", error);
     },
   });
 };
@@ -48,19 +73,77 @@ export const useUpdateSpeaker = () => {
     }: {
       speakerId: string;
       speakerData: SpeakerFormData;
-    }) => updateSpeaker(speakerId, speakerData),
-    onSettled: () => {
-      // Optionally, you can refetch speakers after updating one
-      queryClient.invalidateQueries({ queryKey: queryKeys.speakers });
+    }) => {
+      console.log("🚀 useUpdateSpeaker: Starting mutation", {
+        speakerId,
+        speakerData,
+      });
+      const result = await updateSpeaker(speakerId, speakerData);
+      console.log("✅ useUpdateSpeaker: Mutation completed");
+
+      // Add a small delay to allow Contentful to process the publish
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return result;
+    },
+    onSuccess: async () => {
+      console.log("🎉 useUpdateSpeaker: onSuccess called");
+
+      // Invalidate and refetch immediately
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.speakers,
+        exact: true,
+      });
+
+      // Force a refetch to ensure fresh data
+      await queryClient.refetchQueries({
+        queryKey: queryKeys.speakers,
+        exact: true,
+      });
+
+      console.log(
+        "🔄 useUpdateSpeaker: Invalidated and refetched speakers query"
+      );
+    },
+    onError: (error) => {
+      console.error("❌ useUpdateSpeaker: Error updating speaker:", error);
     },
   });
 };
 
 export const useDeleteSpeaker = () => {
   return useMutation({
-    mutationFn: (speakerId: string) => deleteSpeaker(speakerId),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.speakers });
+    mutationFn: async (speakerId: string) => {
+      console.log("🚀 useDeleteSpeaker: Starting mutation", { speakerId });
+      const result = await deleteSpeaker(speakerId);
+      console.log("✅ useDeleteSpeaker: Mutation completed");
+
+      // Add a small delay to allow Contentful to process the delete
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return result;
+    },
+    onSuccess: async () => {
+      console.log("🎉 useDeleteSpeaker: onSuccess called");
+
+      // Invalidate and refetch immediately
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.speakers,
+        exact: true,
+      });
+
+      // Force a refetch to ensure fresh data
+      await queryClient.refetchQueries({
+        queryKey: queryKeys.speakers,
+        exact: true,
+      });
+
+      console.log(
+        "🔄 useDeleteSpeaker: Invalidated and refetched speakers query"
+      );
+    },
+    onError: (error) => {
+      console.error("❌ useDeleteSpeaker: Error deleting speaker:", error);
     },
   });
 };

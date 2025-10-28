@@ -11,8 +11,7 @@ import { Input } from "./ui/Input";
 interface SpeakersManagementProps {}
 
 export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
-  const { speakers, loading, isFetching } = useSpeakers();
-  const { mutate } = useDeleteSpeaker();
+  const { speakers, loading, isFetching, refetch } = useSpeakers();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSpeaker, setEditingSpeaker] = useState<any>(null);
@@ -26,10 +25,6 @@ export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
   const handleEdit = (speaker: any) => {
     setEditingSpeaker(speaker);
     setShowCreateModal(true);
-  };
-
-  const handleDelete = (id: string) => {
-    mutate(id);
   };
 
   const handleCreateNew = () => {
@@ -110,7 +105,6 @@ export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
                     key={speaker.id}
                     speaker={speaker}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
                   />
                 ))}
               </div>
@@ -145,6 +139,7 @@ export const SpeakersManagement: React.FC<SpeakersManagementProps> = () => {
         isOpen={showCreateModal}
         onClose={handleCloseModal}
         speaker={editingSpeaker}
+        refetch={refetch}
       />
     </div>
   );
