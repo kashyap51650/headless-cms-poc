@@ -15,7 +15,7 @@ const QuickActionCard = () => {
       <div className="grid grid-cols-1 gap-4">
         <Button
           className="h-12 justify-start"
-          onClick={() => navigate("/createEvent")}
+          onClick={() => navigate("/create-event")}
         >
           <Plus className="w-5 h-5 mr-3" />
           Create New Event

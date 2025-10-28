@@ -12,11 +12,18 @@ import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
 import type { Speaker } from "../../types/event";
 import { useCreateSpeaker, useUpdateSpeaker } from "../../hooks/useSpeakers";
+import type {
+  QueryObserverResult,
+  RefetchOptions,
+} from "@tanstack/react-query";
 
 interface SpeakerFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   speaker?: Speaker;
+  refetch?: (
+    options?: RefetchOptions
+  ) => Promise<QueryObserverResult<Speaker[], Error>>;
 }
 
 export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({

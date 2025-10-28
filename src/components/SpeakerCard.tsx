@@ -1,4 +1,7 @@
 import { Edit2, Star, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import { ConfirmationModal } from "./modals/ConfirmationModal";
+import { useDeleteSpeaker } from "../hooks/useSpeakers";
 
 interface SpeakerCardProps {
   speaker: {
@@ -8,14 +11,17 @@ interface SpeakerCardProps {
     avatar?: string;
   };
   onEdit: (speaker: any) => void;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export const SpeakerCard: React.FC<SpeakerCardProps> = ({
   speaker,
   onEdit,
-  onDelete,
 }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const { mutate, isPending } = useDeleteSpeaker();
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -23,6 +29,25 @@ export const SpeakerCard: React.FC<SpeakerCardProps> = ({
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    mutate(speaker.id, {
+      onSuccess: () => {
+        setShowDeleteModal(false);
+      },
+      onError: (error) => {
+        console.error("Error deleting speaker:", error);
+      },
+    });
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
   };
 
   return (
@@ -70,7 +95,7 @@ export const SpeakerCard: React.FC<SpeakerCardProps> = ({
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(speaker.id)}
+            onClick={handleDeleteClick}
             className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-800 transition-colors"
             title="Delete Speaker"
           >
@@ -85,6 +110,19 @@ export const SpeakerCard: React.FC<SpeakerCardProps> = ({
           Speaker ID: {speaker.id.slice(0, 8)}...
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Speaker"
+        message={`Are you sure you want to delete "${speaker.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isPending}
+      />
     </div>
   );
 };

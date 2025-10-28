@@ -25,18 +25,24 @@ export const getSpeakers = async (): Promise<Speaker[]> => {
 
     return speakers;
   } catch (error) {
-    console.error("Error fetching speakers:", error);
+    console.error("❌ Error fetching speakers:", error);
     return [];
   }
 };
 
 export const addSpeaker = async (speakerData: SpeakerFormData) => {
   if (globalSettings.renderStaticData) {
-    console.log("Static data mode: addSpeaker not implemented");
-    return "12435678";
+    const newSpeaker = {
+      id: `static-speaker-${Date.now()}`,
+      ...speakerData,
+      avatar: speakerData.avtarUrl, // Map avtarUrl to avatar
+    };
+
+    return newSpeaker;
   }
 
   try {
+    console.log("🌐 Creating speaker in Contentful...");
     const space = await managementClient.getSpace(
       import.meta.env.VITE_SPACE_ID
     );
@@ -48,11 +54,20 @@ export const addSpeaker = async (speakerData: SpeakerFormData) => {
       fields: {
         name: { "en-US": speakerData.name },
         bio: { "en-US": speakerData.bio || "" },
-        avtarUrl: { "en-US": speakerData.avtarUrl }, // Assuming avatar URL is optional
+        avtarUrl: { "en-US": speakerData.avtarUrl || "" },
       },
     });
-    await entry.publish();
-    return entry.sys.id;
+
+    const publishedEntry = await entry.publish();
+
+    const newSpeaker = {
+      id: publishedEntry.sys.id,
+      name: speakerData.name,
+      bio: speakerData.bio,
+      avatar: speakerData.avtarUrl,
+    };
+
+    return newSpeaker;
   } catch (error: unknown) {
     const errorMessage =
       typeof error === "object" && error !== null && "message" in error
@@ -70,7 +85,6 @@ export const updateSpeaker = async (
   speakerData: SpeakerFormData
 ): Promise<string> => {
   if (globalSettings.renderStaticData) {
-    console.log("Static data mode: updateSpeaker not implemented");
     return speakerId;
   }
 
@@ -106,7 +120,6 @@ export const updateSpeaker = async (
 
 export const deleteSpeaker = async (speakerId: string): Promise<void> => {
   if (globalSettings.renderStaticData) {
-    console.log("Static data mode: deleteSpeaker not implemented");
     return;
   }
 
@@ -122,6 +135,13 @@ export const deleteSpeaker = async (speakerId: string): Promise<void> => {
     await entry.unpublish();
     await entry.delete();
   } catch (error) {
-    console.error("Error deleting speaker:", error);
+    const errorMessage =
+      typeof error === "object" && error !== null && "message" in error
+        ? (error as Error).message
+        : String(error);
+
+    const contentfulError = JSON.parse(errorMessage) as ContentfulError;
+
+    throw contentfulError;
   }
 };
