@@ -1,6 +1,6 @@
 import { Filter, Plus, Search, UserPlus, Users } from "lucide-react";
 import React, { useState } from "react";
-import { useDeleteSpeaker, useSpeakers } from "../hooks/useSpeakers";
+import { useSpeakers } from "../hooks/useSpeakers";
 import { SpeakerFormModal } from "./modals/SpeakerFormModal";
 import PageHeader from "./PageHeader";
 import { SpeakerCard } from "./SpeakerCard";

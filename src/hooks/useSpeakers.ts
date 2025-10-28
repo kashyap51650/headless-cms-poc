@@ -16,8 +16,6 @@ export const useSpeakers = () => {
     error,
     refetch,
     isFetching,
-    dataUpdatedAt,
-    isStale,
   } = useQuery({
     queryKey: queryKeys.speakers,
     queryFn: getSpeakers,
@@ -46,7 +44,7 @@ export const useCreateSpeaker = () => {
 
       return result;
     },
-    onSuccess: async (data, variables) => {
+    onSuccess: async () => {
       // Invalidate and refetch immediately
       await queryClient.invalidateQueries({
         queryKey: queryKeys.speakers,
